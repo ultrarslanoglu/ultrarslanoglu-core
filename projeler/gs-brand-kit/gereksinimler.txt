@@ -1,0 +1,6 @@
+# Gereksinimler
+# Bu dosya, projenin bağımlılıklarını listeler.
+# Örnek:
+# pillow
+# reportlab
+# colorama
