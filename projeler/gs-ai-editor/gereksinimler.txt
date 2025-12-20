@@ -1,0 +1,5 @@
+# Gereksinimler
+# Bu dosya, projenin bağımlılıklarını listeler.
+# Örnek:
+# tensorflow
+# opencv-python
