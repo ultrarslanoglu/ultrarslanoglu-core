@@ -12,8 +12,13 @@ Dashboard, gerçek zamanlı verileri görselleştirir ve raporlar üretir. Yöne
 - İçerik analizi
 - Rapor otomasyonu
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - Veri kaynakları ve API entegrasyonları
 - Görselleştirme bileşenleri ve grafikler
 - Rapor şablonları ve otomasyonları
 - Kullanıcı rolleri ve izin yönetimi
+
+## Teknik Notlar
+- Veri analizi ve görselleştirme kütüphaneleri
+- Veritabanı entegrasyonları
+- Güvenlik ve veri gizliliği önlemleri

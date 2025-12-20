@@ -12,8 +12,13 @@ AI Editor, manuel düzenleme süreçlerini otomatikleştirir. Kullanıcı dostu 
 - İçerik analizi
 - Kolay kullanım arayüzü
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - AI model entegrasyonları
 - Kullanıcı arayüzü bileşenleri
 - Düzenleme algoritmaları ve efektler
 - Eğitim verileri ve model güncellemeleri
+
+## Teknik Notlar
+- Python tabanlı geliştirme
+- Yapay zeka kütüphaneleri kullanımı
+- Video işleme optimizasyonları

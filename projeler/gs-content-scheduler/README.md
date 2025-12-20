@@ -12,8 +12,13 @@ Scheduler, içerik yayınını otomatikleştirir ve en uygun zamanları belirler
 - Performans analizi
 - Çoklu platform desteği
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - Platform API entegrasyonları
 - Zamanlama algoritmaları ve kuralları
 - İçerik kuyruğu ve önceliklendirme
 - Analitik ve raporlama araçları
+
+## Teknik Notlar
+- Sosyal medya API entegrasyonları
+- Zamanlama ve otomasyon mekanizmaları
+- Veri güvenliği ve gizlilik
