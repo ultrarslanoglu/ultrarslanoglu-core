@@ -12,8 +12,13 @@ Pipeline, içerik oluşturma süreçlerini hızlandırır ve kaliteyi standartla
 - Çoklu format desteği
 - Dağıtım entegrasyonları
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - Pipeline konfigürasyonları ve betikleri
 - Video işleme algoritmaları
 - Dağıtım ve yayınlama araçları
 - Test videoları ve örnek çıktılar
+
+## Teknik Notlar
+- Video işleme kütüphaneleri
+- Bulut tabanlı altyapı entegrasyonları
+- Performans ve ölçeklenebilirlik

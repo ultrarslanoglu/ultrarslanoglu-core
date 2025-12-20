@@ -12,8 +12,13 @@ Otomasyon araçları, tekrarlayan süreçleri hızlandırır ve hata oranını a
 - Entegrasyon betikleri
 - İzleme ve loglama
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - Otomasyon betikleri ve workflow'lar
 - Entegrasyon API'leri ve hook'lar
 - İzleme ve loglama araçları
 - Test ve doğrulama mekanizmaları
+
+## Teknik Notlar
+- Otomasyon kütüphaneleri ve araçları
+- Güvenlik ve erişim kontrolleri
+- Ölçeklenebilirlik ve performans optimizasyonları

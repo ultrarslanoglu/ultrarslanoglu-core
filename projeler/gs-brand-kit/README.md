@@ -12,8 +12,13 @@ Brand Kit, tüm içeriklerde marka tutarlılığını sağlar. Tasarımcılar ve
 - Marka yönergeleri
 - Dijital varlık deposu
 
-## İleride Eklenecek Dosyalar
+## Gelecek Planları
 - Renk paletleri ve tipografi kılavuzları
 - Logo ve görsel varlık dosyaları
 - Şablonlar ve örnekler
 - Marka kullanım kuralları ve lisanslar
+
+## Teknik Notlar
+- Dijital varlık yönetimi araçları
+- Web tabanlı arayüzler
+- Erişim kontrolü ve sürüm yönetimi

@@ -1,13 +1,28 @@
 # Ultrarslanoglu-Core
+
 Galatasaray Dijital Liderlik Projesi
 
+## 🚀 Hızlı Başlangıç (Dev Container)
+
+Bu proje VS Code Dev Containers kullanarak geliştirilir. Geliştirme ortamını otomatik olarak kurmak için:
+
+1. **VS Code Dev Containers extension'ını yükleyin**
+2. **Command Palette** (Ctrl+Shift+P) → "Dev Containers: Reopen in Container"
+3. **İlk açılışta** container build edilecek (5-10 dakika)
+4. **Test edin**: `python test_devcontainer.py`
+
+Detaylar için [.devcontainer/README.md](.devcontainer/README.md) dosyasına bakın.
+
 ## 1. Vizyon
+
 Ultrarslanoglu-Core, Galatasaray'ı dünyanın en büyük futbol kulübü haline getirmek için dijital, teknik ve kültürel liderlik vizyonunu hayata geçiren bir platformdur. Bu vizyon, dijital taraftar gücünü mobilize ederek küresel bir marka etkisi yaratmayı, oyuncu iletişimi yoluyla takım ruhunu güçlendirmeyi ve ileri teknoloji entegrasyonları ile futbol deneyimini yeniden tanımlamayı hedefler. Taraftarların tutkusuyla beslenen bu vizyon, Galatasaray'ı sadece bir kulüp olmaktan çıkarıp, dijital çağın lider bir simgesi haline getirecek; global izleyicilere ilham veren, teknolojiyle desteklenen ve sürdürülebilir büyüme odaklı bir ekosistem kuracaktır.
 
 ## 2. Misyon
+
 Ultrarslanoglu markası, Galatasaray taraftarlarını bir araya getiren, oyuncularla doğrudan iletişim kurabilen, kulüp yönetimiyle köprü görevi gören, yenilikçi dijital projeler geliştiren ve küresel Galatasaray kültürünü büyüten bir dijital lider olarak konumlanmaktadır. Bu misyon, tutkuyu teknolojiyle birleştirerek taraftar deneyimini zenginleştirmek, kulübün dijital varlığını güçlendirmek ve Galatasaray'ı uluslararası arenada rekabetçi bir güç haline getirmeyi amaçlar.
 
 ## 3. Marka Kimliği
+
 - **Persona**: "Galatasaray Dijital Kaptanı" – Lider, motive eden ve vizyoner bir figür olarak, taraftarları bir araya getirip, dijital araçlarla kulübün başarısını yönlendiren kaptan.
 - **Renkler**: Sarı-Kırmızı – Galatasaray'ın geleneksel renkleri, enerji ve tutkuyu simgeler.
 - **Ton**: Lider, motive eden, teknik ve vizyoner – Profesyonel, yenilikçi ve ilham verici bir iletişim tarzı.
@@ -15,6 +30,7 @@ Ultrarslanoglu markası, Galatasaray taraftarlarını bir araya getiren, oyuncul
 - **Değerler**: Tutku, disiplin, teknoloji, yenilik ve liderlik – Bu değerler, her projede ve iletişimde ön planda tutulur.
 
 ## 4. Dijital Ekosistem
+
 Ultrarslanoglu-Core, Galatasaray'ın dijital varlığını güçlendirmek için çoklu platform stratejisi benimser. Her platform, belirli roller üstlenerek marka etkileşimini maksimize eder:
 
 - **Instagram**: Viral Reels ve görsel içerikler aracılığıyla hızlı, eğlenceli ve paylaşılabilir momentler yaratır. Taraftar etkileşimini artırarak marka görünürlüğünü yükseltir.
@@ -24,6 +40,7 @@ Ultrarslanoglu-Core, Galatasaray'ın dijital varlığını güçlendirmek için 
 - **GitHub**: Teknik altyapı ve açık kaynak projeler için merkezi depo. Geliştiricilerle işbirliği yaparak inovasyonu teşvik eder ve projelerin şeffaf yönetimini sağlar.
 
 ## 5. Teknik Yapı
+
 Bu çekirdek depo, Galatasaray'ın dijital altyapısını destekleyen çeşitli projelerin geliştirilmesine temel oluşturur. Aşağıda planlanan ana projeler ve kısa açıklamaları yer almaktadır:
 
 - **gs-video-pipeline**: Video içerik üretimini otomatikleştiren ve optimize eden bir pipeline sistemi. Yüksek kaliteli video işleme ve dağıtım araçları içerir.
@@ -34,6 +51,7 @@ Bu çekirdek depo, Galatasaray'ın dijital altyapısını destekleyen çeşitli 
 - **gs-brand-kit**: Galatasaray marka kimliğini dijital olarak yöneten bir kit. Renk paletleri, şablonlar ve yönergeler içerir.
 
 ## 6. Yol Haritası
+
 Ultrarslanoglu-Core'un gelişimi, aşamalı bir yol haritası ile planlanmıştır. Her aşama, önceki başarılara dayanarak ilerler:
 
 - **Aşama 1: Marka Temeli** – Marka kimliğinin tanımlanması, temel altyapının kurulması ve ilk dijital varlıkların oluşturulması.
@@ -45,6 +63,7 @@ Ultrarslanoglu-Core'un gelişimi, aşamalı bir yol haritası ile planlanmışt�
 - **Aşama 7: Global GS Vizyonu** – Galatasaray'ı küresel bir fenomen haline getirecek vizyoner projelerin hayata geçirilmesi, uluslararası ortaklıkların genişletilmesi ve dijital liderliğin zirveye çıkarılması.
 
 ## 7. Teknoloji Entegrasyonları
+
 Ultrarslanoglu-Core, lider teknoloji şirketleriyle entegrasyonlar yoluyla ileri seviye yetenekler kazanır:
 
 - **NVIDIA**: AI video işleme için GPU tabanlı hesaplama gücü sağlar. Derin öğrenme modelleri ile içerik analizi ve üretimini optimize eder.
@@ -55,6 +74,7 @@ Ultrarslanoglu-Core, lider teknoloji şirketleriyle entegrasyonlar yoluyla ileri
 - **Apple**: iOS ve macOS entegrasyonları ile mobil uygulamalar ve içerik editörleri geliştirir.
 
 ## 8. Organizasyon Yapısı
+
 Gelecekteki ekip yapısı, uzmanlık alanlarına göre organize edilecektir:
 
 - **Video Editörü**: İçerik üretimini yönetir, video düzenleme ve post-prodüksiyon süreçlerinden sorumludur.
@@ -65,4 +85,5 @@ Gelecekteki ekip yapısı, uzmanlık alanlarına göre organize edilecektir:
 - **Proje Yöneticisi**: Genel koordinasyonu sağlar, zaman çizelgelerini yönetir ve ekip işbirliğini yönlendirir.
 
 ## 9. Lisans
+
 Bu proje MIT Lisansı altında lisanslanmıştır. Bu lisans, yazılımın özgürce kullanılması, değiştirilmesi ve dağıtılmasına izin verir, ancak herhangi bir garanti verilmez. Detaylar için [MIT Lisansı](https://opensource.org/licenses/MIT) sayfasını ziyaret edin.
