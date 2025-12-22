@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Deletion - Ultrarslanoglu Social Media Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #333; }
+        .last-updated { color: #666; font-size: 0.9em; }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #1877f2;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #166fe5;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            display: none;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            display: none;
+        }
+        .info-box {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #1877f2;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Deletion Request</h1>
+        <p class="last-updated">Ultrarslanoglu Social Media Hub</p>
+        
+        <div class="info-box">
+            <p><strong>Important:</strong> This page allows you to request deletion of your data that was shared with Ultrarslanoglu Social Media Hub through Facebook/Instagram login.</p>
+        </div>
+
+        <h2>About Data Deletion</h2>
+        <p>When you request data deletion, we will:</p>
+        <ul>
+            <li>Remove your OAuth access tokens</li>
+            <li>Delete your connected social media account information</li>
+            <li>Remove uploaded content and analytics data</li>
+            <li>Deactivate your account in our system</li>
+        </ul>
+
+        <p><strong>Note:</strong> This process may take up to 30 days to complete. You will receive a confirmation email once the deletion is finished.</p>
+
+        <h2>Request Data Deletion</h2>
+        
+        <div id="successMessage" class="success-message">
+            Your data deletion request has been submitted successfully. You will receive a confirmation email shortly.
+        </div>
+
+        <div id="errorMessage" class="error-message">
+            An error occurred. Please try again or contact support at info@ultrarslanoglu.com
+        </div>
+
+        <form id="deletionForm">
+            <div class="form-group">
+                <label for="email">Your Email Address:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+            </div>
+
+            <div class="form-group">
+                <label for="userId">Facebook User ID (Optional):</label>
+                <input type="text" id="userId" name="userId" placeholder="Your Facebook User ID">
+            </div>
+
+            <button type="submit">Submit Deletion Request</button>
+        </form>
+
+        <h2>Alternative Methods</h2>
+        <p>You can also contact us directly:</p>
+        <ul>
+            <li><strong>Email:</strong> info@ultrarslanoglu.com</li>
+            <li><strong>Subject:</strong> Data Deletion Request</li>
+            <li><strong>Include:</strong> Your email address and Facebook User ID (if available)</li>
+        </ul>
+
+        <h2>Questions?</h2>
+        <p>If you have any questions about data deletion, please review our <a href="/privacy-policy">Privacy Policy</a> or contact us at info@ultrarslanoglu.com</p>
+    </div>
+
+    <script>
+        document.getElementById('deletionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const userId = document.getElementById('userId').value;
+            
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/meta/data-deletion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, userId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    document.getElementById('deletionForm').reset();
+                    
+                    // Scroll to success message
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(data.error || 'Request failed');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
