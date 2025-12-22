@@ -1,0 +1,23 @@
+Contact: mailto:security@ultrarslanoglu.com
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: tr, en
+Canonical: https://ultrarslanoglu.com/.well-known/security.txt
+
+# Security Policy
+
+If you discover a security vulnerability, please report it to us at security@ultrarslanoglu.com
+
+We appreciate responsible disclosure and will respond promptly to security reports.
+
+## Scope
+- ultrarslanoglu.com
+- All subdomains of ultrarslanoglu.com
+- Social Media Hub application
+
+## Out of Scope
+- Third-party services (TikTok, Instagram, YouTube, X)
+- Social engineering attacks
+- Physical security
+
+## Response Timeline
+We aim to respond to security reports within 48 hours.

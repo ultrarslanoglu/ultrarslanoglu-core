@@ -1,0 +1,16 @@
+# Uploads dizini
+
+Video ve medya dosyaları geçici olarak bu klasörde saklanır.
+
+## Yapı
+
+```
+uploads/
+├── temp/      # Geçici upload dosyaları
+└── storage/   # Kalıcı storage (opsiyonel)
+```
+
+## Not
+
+Upload dosyaları .gitignore ile ignore edilir.
+Üretim ortamında S3 veya benzeri cloud storage kullanılması önerilir.
