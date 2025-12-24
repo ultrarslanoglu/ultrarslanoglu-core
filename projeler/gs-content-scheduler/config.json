@@ -1,1 +1,21 @@
-{}
+{
+  "app": {
+    "name": "GS Content Scheduler",
+    "version": "1.0.0",
+    "port": 5004,
+    "debug": true
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./data/gs_content_scheduler.db"
+  },
+  "scheduler": {
+    "timezone": "UTC",
+    "check_interval_seconds": 60,
+    "max_scheduled_posts": 1000
+  },
+  "logging": {
+    "level": "info",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

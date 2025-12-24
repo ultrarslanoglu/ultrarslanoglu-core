@@ -1,1 +1,21 @@
-{}
+{
+  "app": {
+    "name": "GS AI Editor",
+    "version": "1.0.0",
+    "port": 5000,
+    "debug": true
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./data/gs_ai_editor.db"
+  },
+  "ai": {
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "max_tokens": 2000
+  },
+  "logging": {
+    "level": "info",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

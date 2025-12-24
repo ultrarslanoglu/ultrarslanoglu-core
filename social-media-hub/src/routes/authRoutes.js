@@ -310,6 +310,165 @@ router.post('/x/revoke', async (req, res) => {
   }
 });
 
+// ============ Meta Token Verification (Facebook SDK ile) ============
+
+/**
+ * @route   POST /auth/meta/verify-token
+ * @desc    Facebook SDK'dan gelen token'ı doğrula ve backend'de oturum oluştur
+ * @access  Public
+ */
+router.post('/meta/verify-token', async (req, res) => {
+  try {
+    const { accessToken, userId, userInfo } = req.body;
+
+    if (!accessToken || !userId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing accessToken or userId' 
+      });
+    }
+
+    console.log('📊 Meta Token Verification:', {
+      userId: userId,
+      userName: userInfo?.name,
+      userEmail: userInfo?.email
+    });
+
+    // Veritabanında kullanıcı ara ya da oluştur
+    let user = await User.findOne({ email: userInfo?.email || userId });
+
+    if (!user) {
+      user = await User.create({
+        email: userInfo?.email || `${userId}@facebook.com`,
+        name: userInfo?.name || 'Facebook User',
+        profileImage: userInfo?.picture?.data?.url || null,
+        facebookId: userId
+      });
+      
+      console.log('✅ Yeni kullanıcı oluşturuldu:', user._id);
+    } else {
+      // Mevcut kullanıcıyı güncelle
+      user = await User.findByIdAndUpdate(user._id, {
+        facebookId: userId,
+        profileImage: userInfo?.picture?.data?.url || user.profileImage,
+        lastLoginAt: new Date()
+      }, { new: true });
+    }
+
+    // Meta token'ı veritabanına kaydet
+    const Token = require('../models/Token');
+    
+    let token = await Token.findOne({
+      userId: user._id,
+      platform: 'meta'
+    });
+
+    if (!token) {
+      token = await Token.create({
+        userId: user._id,
+        platform: 'meta',
+        accessToken: accessToken,
+        expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 gün
+        isActive: true
+      });
+      
+      console.log('✅ Yeni Meta token kaydedildi');
+    } else {
+      token = await Token.findByIdAndUpdate(token._id, {
+        accessToken: accessToken,
+        expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        lastUsedAt: new Date()
+      }, { new: true });
+      
+      console.log('🔄 Meta token güncellendi');
+    }
+
+    // Bağlı platformları güncelle
+    await User.findByIdAndUpdate(user._id, {
+      $addToSet: {
+        connectedPlatforms: {
+          platform: 'meta',
+          connectedAt: new Date(),
+          isActive: true
+        }
+      }
+    });
+
+    // JWT token oluştur
+    const jwt = require('jsonwebtoken');
+    const config = require('../../config');
+    
+    const jwtToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn }
+    );
+
+    // Session'da user ID'yi kaydet
+    req.session.userId = user._id;
+
+    console.log('✅ Token doğrulaması başarılı, oturum oluşturuldu');
+
+    res.json({
+      success: true,
+      message: 'Token verified and session created',
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        profileImage: user.profileImage,
+        facebookId: user.facebookId
+      },
+      token: jwtToken,
+      connectedPlatforms: user.connectedPlatforms
+    });
+
+  } catch (error) {
+    logger.error('Meta token verification error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Token verification failed',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /auth/meta/logout
+ * @desc    Backend'de Facebook oturumunu sonlandır
+ * @access  Public
+ */
+router.post('/meta/logout', async (req, res) => {
+  try {
+    const userId = req.user?.id || req.session?.userId;
+
+    if (userId) {
+      // Token'ı pasif yap
+      const Token = require('../models/Token');
+      await Token.findOneAndUpdate(
+        { userId: userId, platform: 'meta' },
+        { isActive: false },
+        { new: true }
+      );
+
+      console.log('🚪 Meta logout:', userId);
+    }
+
+    // Session'ı temizle
+    req.session.destroy((err) => {
+      if (err) {
+        logger.error('Session destruction error:', err);
+      }
+      res.json({ success: true, message: 'Logged out successfully' });
+    });
+
+  } catch (error) {
+    logger.error('Meta logout error:', error);
+    res.status(500).json({ success: false, error: 'Logout failed' });
+  }
+});
+
 // ============ Status Check ============
 
 /**

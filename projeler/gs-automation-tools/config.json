@@ -1,1 +1,21 @@
-{}
+{
+  "app": {
+    "name": "GS Automation Tools",
+    "version": "1.0.0",
+    "port": 5002,
+    "debug": true
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./data/gs_automation.db"
+  },
+  "automation": {
+    "max_concurrent_tasks": 5,
+    "timeout_seconds": 3600,
+    "retry_attempts": 3
+  },
+  "logging": {
+    "level": "info",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}
