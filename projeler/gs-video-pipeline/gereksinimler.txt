@@ -1,5 +1,38 @@
-# Gereksinimler
-# Bu dosya, projenin bağımlılıklarını listeler.
-# Örnek:
-# opencv-python
-# numpy
+# GS Video Pipeline Gereksinimleri
+
+# Web Framework
+flask==3.0.0
+flask-cors==4.0.0
+celery==5.3.4
+
+# Database
+pymongo==4.6.0
+redis==5.0.1
+
+# Video Processing
+opencv-python==4.8.1.78
+moviepy==1.0.3
+ffmpeg-python==0.2.0
+
+# AI/ML
+torch==2.1.0
+torchvision==0.16.0
+transformers==4.35.2
+
+# GitHub Models
+azure-ai-inference==1.0.0b1
+openai==1.3.0
+
+# Cloud Storage
+boto3==1.29.0
+azure-storage-blob==12.19.0
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+pyyaml==6.0.1
+numpy==1.24.3
+pillow==10.1.0
+
+# Logging
+loguru==0.7.2

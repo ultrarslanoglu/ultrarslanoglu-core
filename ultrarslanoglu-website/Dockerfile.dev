@@ -1,0 +1,27 @@
+# Development Dockerfile for hot reload
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dev dependencies
+RUN apk add --no-cache dumb-init
+
+# Copy package files
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
+
+# Install all dependencies (including dev)
+RUN npm ci || npm install
+
+# Copy source
+COPY . .
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001', (r) => {if (r.statusCode !== 404 && r.statusCode !== 200) throw new Error(r.statusCode)})" || true
+
+# Run dev server with watch
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "run", "dev"]

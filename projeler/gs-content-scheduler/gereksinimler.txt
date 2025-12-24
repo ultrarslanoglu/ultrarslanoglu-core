@@ -1,6 +1,33 @@
-# Gereksinimler
-# Bu dosya, projenin bağımlılıklarını listeler.
-# Örnek:
-# requests
-# schedule
-# tweepy
+# GS Content Scheduler Gereksinimleri
+
+# Web Framework
+flask==3.0.0
+flask-cors==4.0.0
+celery==5.3.4
+
+# Database
+pymongo==4.6.0
+redis==5.0.1
+
+# Scheduling
+apscheduler==3.10.4
+schedule==1.2.0
+python-crontab==3.0.0
+
+# Social Media APIs
+instagrapi==2.0.0
+tweepy==4.14.0
+google-api-python-client==2.108.0
+
+# GitHub Models
+azure-ai-inference==1.0.0b1
+openai==1.3.0
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+pyyaml==6.0.1
+pytz==2023.3
+
+# Logging
+loguru==0.7.2

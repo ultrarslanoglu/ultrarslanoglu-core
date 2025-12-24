@@ -100,7 +100,18 @@ cp .env.example .env
 # .env dosyasını düzenle ve gerçek değerleri gir
 ```
 
-### 5. MongoDB'yi Başlat
+### 5. Bağlantıları Test Et
+```bash
+# Hızlı yapılandırma kontrolü (veritabanı gerektirmez)
+npm run test:connections:simple
+
+# Detaylı bağlantı testi (veritabanı gerektirir)
+npm run test:connections
+```
+
+Test sonuçlarına göre `.env` dosyasındaki eksik bilgileri tamamlayın. Detaylı bilgi için [`docs/CONNECTION-STATUS.md`](docs/CONNECTION-STATUS.md) dosyasına bakınız.
+
+### 6. MongoDB'yi Başlat
 ```bash
 # Local MongoDB
 mongod
@@ -109,7 +120,7 @@ mongod
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
-### 6. Uygulamayı Başlat
+### 7. Uygulamayı Başlat
 ```bash
 # Development
 npm run dev

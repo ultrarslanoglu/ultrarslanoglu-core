@@ -1,0 +1,445 @@
+### Sosyal Medya Hub - API Test Dosyası
+### REST Client eklentisi ile kullan (Ctrl+Alt+R)
+
+@baseUrl = http://localhost:3000
+@authToken = your-jwt-token-here
+
+### ==========================================
+### HEALTH CHECK
+### ==========================================
+
+### Health Status
+GET {{baseUrl}}/health
+
+### Connection Test
+GET {{baseUrl}}/api/health/connections
+
+### Single Platform Test
+GET {{baseUrl}}/api/health/connections/tiktok
+
+### ==========================================
+### AUTHENTICATION - TIKTOK
+### ==========================================
+
+### TikTok Login
+GET {{baseUrl}}/auth/tiktok/login
+
+### TikTok Revoke
+POST {{baseUrl}}/auth/tiktok/revoke
+
+### ==========================================
+### AUTHENTICATION - META (INSTAGRAM)
+### ==========================================
+
+### Meta Login
+GET {{baseUrl}}/auth/meta/login
+
+### Meta Revoke
+POST {{baseUrl}}/auth/meta/revoke
+
+### ==========================================
+### AUTHENTICATION - YOUTUBE
+### ==========================================
+
+### YouTube Login
+GET {{baseUrl}}/auth/youtube/login
+
+### YouTube Revoke
+POST {{baseUrl}}/auth/youtube/revoke
+
+### ==========================================
+### AUTHENTICATION - X (TWITTER)
+### ==========================================
+
+### X Login
+GET {{baseUrl}}/auth/x/login
+
+### X Revoke
+POST {{baseUrl}}/auth/x/revoke
+
+### ==========================================
+### AUTH STATUS
+### ==========================================
+
+### Get Connected Platforms
+GET {{baseUrl}}/auth/status
+
+### ==========================================
+### UPLOAD - SINGLE PLATFORM
+### ==========================================
+
+### Upload to TikTok
+POST {{baseUrl}}/api/upload/single
+Content-Type: application/json
+
+{
+  "platform": "tiktok",
+  "title": "Test Video",
+  "description": "Bu test videosudur",
+  "tags": ["test", "sosyal-medya"]
+}
+
+### Upload to Instagram
+POST {{baseUrl}}/api/upload/single
+Content-Type: application/json
+
+{
+  "platform": "instagram",
+  "title": "Instagram Post",
+  "description": "Instagram'a test yüklemesi"
+}
+
+### ==========================================
+### UPLOAD - MULTIPLE PLATFORMS
+### ==========================================
+
+### Upload to Multiple Platforms
+POST {{baseUrl}}/api/upload/multiple
+Content-Type: application/json
+
+{
+  "platforms": ["tiktok", "instagram", "youtube"],
+  "title": "Çoklu Platform Video",
+  "description": "Aynı video birden fazla platforma",
+  "tags": ["multi-platform", "test"]
+}
+
+### ==========================================
+### UPLOAD - SCHEDULED
+### ==========================================
+
+### Schedule Upload
+POST {{baseUrl}}/api/upload/schedule
+Content-Type: application/json
+
+{
+  "platforms": ["tiktok", "instagram"],
+  "title": "Zamanlanmış Video",
+  "description": "Bu video belirli bir zamanda yayınlanacak",
+  "scheduledTime": "2025-12-25T18:00:00Z"
+}
+
+### ==========================================
+### UPLOAD - STATUS & HISTORY
+### ==========================================
+
+### Get Upload Status
+GET {{baseUrl}}/api/upload/status/upload-id-here
+
+### Get Upload History
+GET {{baseUrl}}/api/upload/history
+
+### Delete Upload
+DELETE {{baseUrl}}/api/upload/upload-id-here
+
+### ==========================================
+### ANALYTICS - ALL PLATFORMS
+### ==========================================
+
+### Get All Analytics
+GET {{baseUrl}}/api/analytics/all
+
+### Get TikTok Analytics
+GET {{baseUrl}}/api/analytics/tiktok
+
+### Get Instagram Analytics
+GET {{baseUrl}}/api/analytics/instagram
+
+### Get YouTube Analytics
+GET {{baseUrl}}/api/analytics/youtube
+
+### Get X Analytics
+GET {{baseUrl}}/api/analytics/x
+
+### ==========================================
+### ANALYTICS - COMPARISON & TRENDS
+### ==========================================
+
+### Get Platform Comparison
+GET {{baseUrl}}/api/analytics/comparison
+
+### Get Trend Analysis
+GET {{baseUrl}}/api/analytics/trends/tiktok
+
+### Export Analytics (JSON)
+GET {{baseUrl}}/api/analytics/export?format=json
+
+### Export Analytics (CSV)
+GET {{baseUrl}}/api/analytics/export?format=csv
+
+### ==========================================
+### INSTAGRAM SPECIFIC
+### ==========================================
+
+### List Instagram Accounts
+GET {{baseUrl}}/api/meta/instagram/accounts
+Authorization: Bearer {{authToken}}
+
+### Get Instagram Media
+GET {{baseUrl}}/api/meta/instagram/account-id/media
+Authorization: Bearer {{authToken}}
+
+### Get Media Insights
+GET {{baseUrl}}/api/meta/instagram/media/media-id/insights
+Authorization: Bearer {{authToken}}
+
+### ==========================================
+### YOUTUBE SPECIFIC
+### ==========================================
+
+### Refresh YouTube Token
+POST {{baseUrl}}/api/youtube/refresh-token
+Authorization: Bearer {{authToken}}
+
+### Get YouTube Token Status
+GET {{baseUrl}}/api/youtube/token-status
+Authorization: Bearer {{authToken}}
+
+### Get Video Analytics
+GET {{baseUrl}}/api/youtube/analytics/video?videoId=video-id-here
+Authorization: Bearer {{authToken}}
+
+### Get Traffic Sources
+GET {{baseUrl}}/api/youtube/analytics/traffic
+Authorization: Bearer {{authToken}}
+
+### ==========================================
+### TIKTOK SPECIFIC
+### ==========================================
+
+### Get TikTok User Info
+GET {{baseUrl}}/api/tiktok/user/info
+Authorization: Bearer {{authToken}}
+
+### Get TikTok Videos
+GET {{baseUrl}}/api/tiktok/videos/list
+Authorization: Bearer {{authToken}}
+
+### ==========================================
+### PRIVACY & LEGAL
+### ==========================================
+
+### Privacy Policy
+GET {{baseUrl}}/privacy-policy
+
+### Terms of Service
+GET {{baseUrl}}/terms-of-service
+
+### Data Deletion
+GET {{baseUrl}}/data-deletion
+
+### ==========================================
+### USAGE NOTES
+### ==========================================
+
+# REST Client Commands:
+# - Send Request: Ctrl+Alt+R (or right-click → Send Request)
+# - Send All: Ctrl+Alt+Shift+R
+# - Cancel Request: Ctrl+Alt+K
+
+# Variables:
+# - Replace {{baseUrl}} with your server URL
+# - Replace {{authToken}} with your JWT token
+# - Replace upload-id-here, account-id, etc. with real values
+
+# Browser Usage:
+# 1. OAuth endpoints (Login/Callback) açılmış tarayıcı gerekir
+# 2. Diğer endpoint'leri burada test edebilirsiniz
+# 3. JWT token almak için önce login yapmalısınız
+
+# For Production:
+# @baseUrl = https://ultrarslanoglu.com
+### ==========================================
+### META WEBHOOK
+### ==========================================
+
+### Meta Webhook Verification (GET)
+### Meta will send this request to verify the webhook
+GET {{baseUrl}}/meta/webhook?hub.mode=subscribe&hub.verify_token=ultrarslanoglu_webhook_token_2025&hub.challenge=RANDOM_CHALLENGE_STRING
+
+### Meta Webhook Status
+GET {{baseUrl}}/meta/webhook/status
+
+### Meta Webhook - Test Messaging Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "123456789",
+      "time": 1234567890000,
+      "messaging": [
+        {
+          "sender": { "id": "user_123" },
+          "recipient": { "id": "page_123" },
+          "timestamp": 1234567890000,
+          "message": {
+            "mid": "msg_1",
+            "text": "Merhaba! Bu bir test mesajıdır."
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Delivery Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "123456789",
+      "time": 1234567890000,
+      "messaging": [
+        {
+          "sender": { "id": "user_123" },
+          "recipient": { "id": "page_123" },
+          "delivery": {
+            "mids": ["msg_1", "msg_2"],
+            "watermark": 1234567890000
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Read Receipt Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "123456789",
+      "time": 1234567890000,
+      "messaging": [
+        {
+          "sender": { "id": "user_123" },
+          "recipient": { "id": "page_123" },
+          "read": {
+            "watermark": 1234567890000
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Postback Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "123456789",
+      "time": 1234567890000,
+      "messaging": [
+        {
+          "sender": { "id": "user_123" },
+          "recipient": { "id": "page_123" },
+          "postback": {
+            "payload": "USER_CLICKED_BUTTON_ACTION"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Instagram Comment Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "instagram",
+  "entry": [
+    {
+      "id": "ig_123456789",
+      "time": 1234567890000,
+      "changes": [
+        {
+          "field": "comments",
+          "value": {
+            "id": "comment_123",
+            "text": "Çok güzel bir post! 🌟",
+            "from": { "id": "user_456" },
+            "media": { "id": "media_789" }
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Instagram Mention Event
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "instagram",
+  "entry": [
+    {
+      "id": "ig_123456789",
+      "time": 1234567890000,
+      "changes": [
+        {
+          "field": "mentions",
+          "value": {
+            "media": { "id": "media_789" },
+            "from": { "id": "user_456" }
+          }
+        }
+      ]
+    }
+  ]
+}
+
+### Meta Webhook - Test Multiple Events
+POST {{baseUrl}}/meta/webhook
+Content-Type: application/json
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "page_123",
+      "time": 1234567890000,
+      "messaging": [
+        {
+          "sender": { "id": "user_1" },
+          "recipient": { "id": "page_123" },
+          "timestamp": 1234567890000,
+          "message": {
+            "mid": "msg_1",
+            "text": "Birinci mesaj"
+          }
+        },
+        {
+          "sender": { "id": "user_1" },
+          "recipient": { "id": "page_123" },
+          "timestamp": 1234567891000,
+          "delivery": {
+            "mids": ["msg_1"]
+          }
+        },
+        {
+          "sender": { "id": "user_1" },
+          "recipient": { "id": "page_123" },
+          "timestamp": 1234567892000,
+          "read": {
+            "watermark": 1234567892000
+          }
+        }
+      ]
+    }
+  ]
+}

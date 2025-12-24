@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest"
+    "test": "jest",
+    "test:connections": "node scripts/test-connections.js",
+    "test:connections:simple": "node scripts/test-connections-simple.js",
+    "test:webhook": "node scripts/test-meta-webhook.js"
   },
   "keywords": [
     "social-media",

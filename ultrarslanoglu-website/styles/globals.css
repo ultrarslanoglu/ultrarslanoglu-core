@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background: #fff;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+}
+
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-galatasaray-yellow to-galatasaray-red bg-clip-text text-transparent;
+}
+
+.btn-primary {
+  @apply px-6 py-3 bg-galatasaray-yellow text-galatasaray-dark rounded-lg font-bold hover:bg-galatasaray-red transition duration-300 transform hover:scale-105;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-galatasaray-red text-white rounded-lg font-bold hover:bg-galatasaray-dark transition duration-300;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}

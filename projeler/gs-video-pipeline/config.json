@@ -1,1 +1,22 @@
-{}
+{
+  "app": {
+    "name": "GS Video Pipeline",
+    "version": "1.0.0",
+    "port": 5005,
+    "debug": true
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./data/gs_video_pipeline.db"
+  },
+  "video": {
+    "max_file_size_mb": 500,
+    "supported_formats": ["mp4", "avi", "mov", "mkv"],
+    "output_resolution": "1920x1080",
+    "output_bitrate_kbps": 5000
+  },
+  "logging": {
+    "level": "info",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

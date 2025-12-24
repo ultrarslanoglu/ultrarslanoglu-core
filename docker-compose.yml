@@ -1,0 +1,239 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: ultrarslanoglu-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ultrarslanoglu2025
+      MONGO_INITDB_DATABASE: ultrarslanoglu
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - ultrarslanoglu-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: ultrarslanoglu-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ultrarslanoglu-network
+
+  # GS AI Editor
+  gs-ai-editor:
+    build: ./projeler/gs-ai-editor
+    container_name: gs-ai-editor
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_ai_editor?authSource=admin
+      - REDIS_URL=redis://redis:6379/0
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-ai-editor:/app
+      - ai_editor_data:/app/data
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Analytics Dashboard
+  gs-analytics-dashboard:
+    build: ./projeler/gs-analytics-dashboard
+    container_name: gs-analytics-dashboard
+    restart: always
+    ports:
+      - "5002:5000"
+      - "8501:8501"  # Streamlit
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_analytics?authSource=admin
+      - REDIS_URL=redis://redis:6379/1
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-analytics-dashboard:/app
+      - analytics_data:/app/data
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Automation Tools
+  gs-automation-tools:
+    build: ./projeler/gs-automation-tools
+    container_name: gs-automation-tools
+    restart: always
+    ports:
+      - "5003:5000"
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_automation?authSource=admin
+      - REDIS_URL=redis://redis:6379/2
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    volumes:
+      - ./projeler/gs-automation-tools:/app
+      - automation_data:/app/data
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Brand Kit
+  gs-brand-kit:
+    build: ./projeler/gs-brand-kit
+    container_name: gs-brand-kit
+    restart: always
+    ports:
+      - "5004:5000"
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_brand_kit?authSource=admin
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-brand-kit:/app
+      - brand_kit_data:/app/data
+    depends_on:
+      - mongodb
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Content Scheduler
+  gs-content-scheduler:
+    build: ./projeler/gs-content-scheduler
+    container_name: gs-content-scheduler
+    restart: always
+    ports:
+      - "5005:5000"
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_content_scheduler?authSource=admin
+      - REDIS_URL=redis://redis:6379/3
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/3
+      - CELERY_RESULT_BACKEND=redis://redis:6379/3
+    volumes:
+      - ./projeler/gs-content-scheduler:/app
+      - scheduler_data:/app/data
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Video Pipeline
+  gs-video-pipeline:
+    build: ./projeler/gs-video-pipeline
+    container_name: gs-video-pipeline
+    restart: always
+    ports:
+      - "5006:5000"
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_video_pipeline?authSource=admin
+      - REDIS_URL=redis://redis:6379/4
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+    volumes:
+      - ./projeler/gs-video-pipeline:/app
+      - video_pipeline_data:/app/data
+      - video_pipeline_uploads:/app/uploads
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # Social Media Hub
+  social-media-hub:
+    build: ./social-media-hub
+    container_name: social-media-hub
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/social_media_hub?authSource=admin
+      - REDIS_URL=redis://redis:6379/5
+    volumes:
+      - ./social-media-hub:/app
+      - social_media_uploads:/app/uploads
+      - social_media_logs:/app/logs
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+
+  # Ultrarslanoglu Website (Development)
+  ultrarslanoglu-website:
+    build:
+      context: ./ultrarslanoglu-website
+      dockerfile: Dockerfile.dev
+    container_name: ultrarslanoglu-website
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3001
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/ultrarslanoglu?authSource=admin
+    volumes:
+      - ./ultrarslanoglu-website:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - mongodb
+    networks:
+      - ultrarslanoglu-network
+
+  # Nginx Reverse Proxy (Optional - for production-like setup)
+  nginx:
+    image: nginx:alpine
+    container_name: ultrarslanoglu-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - ultrarslanoglu-website
+      - social-media-hub
+    networks:
+      - ultrarslanoglu-network
+    profiles:
+      - production
+
+networks:
+  ultrarslanoglu-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+  redis_data:
+  ai_editor_data:
+  analytics_data:
+  automation_data:
+  brand_kit_data:
+  scheduler_data:
+  video_pipeline_data:
+  video_pipeline_uploads:
+  social_media_uploads:
+  social_media_logs:
+  website_node_modules:

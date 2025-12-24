@@ -17,6 +17,8 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const tiktokRoutes = require('./routes/tiktokRoutes');
 const metaRoutes = require('./routes/metaRoutes');
 const youtubeRoutes = require('./routes/youtubeRoutes');
+const healthRoutes = require('./routes/healthRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
 
 // Initialize Express app
 const app = express();
@@ -63,7 +65,15 @@ mongoose.connect(config.mongodb.uri, config.mongodb.options)
 
 // ============ Routes ============
 
-// Health check
+// Homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Health check & connection testing
+app.use('/api/health', healthRoutes);
+
+// Legacy health check
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -80,6 +90,9 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tiktok', tiktokRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/youtube', youtubeRoutes);
+
+// Webhook routes (Meta - Facebook/Instagram)
+app.use('/meta', webhookRoutes);
 
 // Privacy Policy & Terms of Service (static pages)
 app.get('/privacy-policy', (req, res) => {
