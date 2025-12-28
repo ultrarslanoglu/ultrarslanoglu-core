@@ -5,7 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const uploaderService = require('../services/uploader');
 const decisionEngine = require('../ai/decisionEngine');
-const Upload = require('../models/Upload');
+const { Upload } = require('../models');
+const { authenticateToken, requireEditor } = require('../utils/auth');
 const logger = require('../utils/logger');
 
 // Multer configuration
@@ -46,10 +47,11 @@ const upload = multer({
 /**
  * @route   POST /upload/analyze
  * @desc    İçerik analizi yap ve AI önerileri al
+ * @access  Private (Editor)
  */
-router.post('/analyze', async (req, res) => {
+router.post('/analyze', authenticateToken, requireEditor, async (req, res) => {
   try {
-    const userId = req.user?.id || req.session?.userId;
+    const userId = req.user.id;
     
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -78,10 +80,11 @@ router.post('/analyze', async (req, res) => {
 /**
  * @route   POST /upload/single
  * @desc    Tek bir platforma video yükle
+ * @access  Private (Editor)
  */
-router.post('/single', upload.single('video'), async (req, res) => {
+router.post('/single', authenticateToken, requireEditor, upload.single('video'), async (req, res) => {
   try {
-    const userId = req.user?.id || req.session?.userId;
+    const userId = req.user.id;
     
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });

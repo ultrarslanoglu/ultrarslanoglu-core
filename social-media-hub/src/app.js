@@ -12,6 +12,7 @@ const { apiLimiter } = require('./utils/rateLimiter');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const tiktokRoutes = require('./routes/tiktokRoutes');
@@ -84,7 +85,8 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/auth', authRoutes);
+app.use('/auth', authRoutes); // OAuth social media routes
+app.use('/api/user', userRoutes); // User management & authentication
 app.use('/api/upload', uploadRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tiktok', tiktokRoutes);

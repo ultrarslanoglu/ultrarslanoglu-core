@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  galatasaray-analytics:
+    build: .
+    container_name: gs-analytics
+    ports:
+      - "5002:5002"
+    environment:
+      FLASK_ENV: production
+      USE_COSMOS_DB: "${USE_COSMOS_DB:-false}"
+      MONGODB_URI: "mongodb://mongodb:27017/galatasaray_analytics"
+      REDIS_URL: "redis://redis:6379/0"
+      LOG_LEVEL: "INFO"
+      SCHEDULER_ENABLED: "true"
+      # API Keys
+      TWITTER_BEARER_TOKEN: "${TWITTER_BEARER_TOKEN}"
+      META_ACCESS_TOKEN: "${META_ACCESS_TOKEN}"
+      YOUTUBE_API_KEY: "${YOUTUBE_API_KEY}"
+      # Azure Cosmos DB (optional)
+      COSMOS_ENDPOINT: "${COSMOS_ENDPOINT}"
+      COSMOS_KEY: "${COSMOS_KEY}"
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - galatasaray-net
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:latest
+    container_name: gs-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: galatasaray_analytics
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - galatasaray-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: gs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - galatasaray-net
+    restart: unless-stopped
+
+  streamlit-dashboard:
+    build: .
+    container_name: gs-streamlit
+    command: streamlit run streamlit_dashboard.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      - galatasaray-analytics
+    networks:
+      - galatasaray-net
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  galatasaray-net:
+    driver: bridge

@@ -15,8 +15,9 @@ moviepy==1.0.3
 ffmpeg-python==0.2.0
 
 # AI/ML
-torch==2.1.0
-torchvision==0.16.0
+# PyTorch 3.12 + CUDA 12.1 uyumlu sürüm (PyTorch cu121 indexindeki son sürüm)
+torch==2.5.1
+torchvision==0.20.1
 transformers==4.35.2
 
 # GitHub Models
