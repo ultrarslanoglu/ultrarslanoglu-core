@@ -21,6 +21,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
+    NEXT_PUBLIC_GALATASARAY_API: process.env.NEXT_PUBLIC_GALATASARAY_API || 'http://localhost:5002',
   },
   async redirects() {
     return [

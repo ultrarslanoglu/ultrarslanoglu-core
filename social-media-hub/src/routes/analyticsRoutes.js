@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const analyticsService = require('../services/analytics');
 const decisionEngine = require('../ai/decisionEngine');
+const { authenticateToken } = require('../utils/auth');
 const logger = require('../utils/logger');
 
 /**
@@ -12,10 +13,11 @@ const logger = require('../utils/logger');
 /**
  * @route   GET /analytics/all
  * @desc    Tüm platformların analytics'ini getir
+ * @access  Private
  */
-router.get('/all', async (req, res) => {
+router.get('/all', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.id || req.session?.userId;
+    const userId = req.user.id;
     
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });

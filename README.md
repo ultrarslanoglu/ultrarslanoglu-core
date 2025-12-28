@@ -17,6 +17,21 @@ Detaylar için [.devcontainer/README.md](.devcontainer/README.md) dosyasına bak
 
 Ultrarslanoglu-Core, Galatasaray'ı dünyanın en büyük futbol kulübü haline getirmek için dijital, teknik ve kültürel liderlik vizyonunu hayata geçiren bir platformdur. Bu vizyon, dijital taraftar gücünü mobilize ederek küresel bir marka etkisi yaratmayı, oyuncu iletişimi yoluyla takım ruhunu güçlendirmeyi ve ileri teknoloji entegrasyonları ile futbol deneyimini yeniden tanımlamayı hedefler. Taraftarların tutkusuyla beslenen bu vizyon, Galatasaray'ı sadece bir kulüp olmaktan çıkarıp, dijital çağın lider bir simgesi haline getirecek; global izleyicilere ilham veren, teknolojiyle desteklenen ve sürdürülebilir büyüme odaklı bir ekosistem kuracaktır.
 
+## 🔐 Güvenlik ve Kimlik Doğrulama
+
+Bu proje **profesyonel bir kimlik doğrulama sistemi** ile donatılmıştır:
+
+- ✅ **JWT Token Authentication** - Güvenli ve stateless kimlik doğrulama
+- ✅ **Rol Bazlı Yetkilendirme** - Viewer, Editor, Admin, Superadmin rolleri
+- ✅ **NextAuth.js Entegrasyonu** - Modern frontend authentication
+- ✅ **Şifre Güvenliği** - Bcrypt ile hash, güçlü şifre politikası
+- ✅ **Email Doğrulama** - Hesap güvenliği için email verification
+- ✅ **Şifre Sıfırlama** - Güvenli password reset akışı
+- ✅ **Rate Limiting** - Brute force saldırı koruması
+- ✅ **Session Yönetimi** - Güvenli oturum takibi
+
+**Detaylı kurulum için:** [AUTH_SETUP.md](AUTH_SETUP.md)
+
 ## 2. Misyon
 
 Ultrarslanoglu markası, Galatasaray taraftarlarını bir araya getiren, oyuncularla doğrudan iletişim kurabilen, kulüp yönetimiyle köprü görevi gören, yenilikçi dijital projeler geliştiren ve küresel Galatasaray kültürünü büyüten bir dijital lider olarak konumlanmaktadır. Bu misyon, tutkuyu teknolojiyle birleştirerek taraftar deneyimini zenginleştirmek, kulübün dijital varlığını güçlendirmek ve Galatasaray'ı uluslararası arenada rekabetçi bir güç haline getirmeyi amaçlar.
