@@ -1,17 +1,33 @@
 # Ultrarslanoglu-Core
 
-Galatasaray Dijital Liderlik Projesi
+**Galatasaray Dijital Liderlik Projesi**
 
-## 🚀 Hızlı Başlangıç (Dev Container)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/ultrarslanoglu/ultrarslanoglu-core)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](docker-compose.new.yml)
 
-Bu proje VS Code Dev Containers kullanarak geliştirilir. Geliştirme ortamını otomatik olarak kurmak için:
+## ⚡ Hızlı Başlangıç
 
-1. **VS Code Dev Containers extension'ını yükleyin**
-2. **Command Palette** (Ctrl+Shift+P) → "Dev Containers: Reopen in Container"
-3. **İlk açılışta** container build edilecek (5-10 dakika)
-4. **Test edin**: `python test_devcontainer.py`
+```bash
+# Tüm sistemi başlat
+docker-compose -f docker-compose.new.yml up -d
 
-Detaylar için [.devcontainer/README.md](.devcontainer/README.md) dosyasına bakın.
+# Health check
+curl http://localhost:5000/health
+
+# Detaylı başlangıç için
+# Bkz: QUICKSTART-V2.md
+```
+
+## 🎯 Versiyon 2.0 - Yenilikler
+
+✨ **API Gateway Architecture** - 7 mikroservis → 1 unified API  
+📉 **%70 Dosya Azaltma** - 190+ dosya → ~60 dosya  
+🚀 **Tek Docker Image** - Kolay deployment ve scaling  
+🔧 **Modüler Yapı** - 6 entegre modül (video, AI, analytics, vb.)  
+🔐 **JWT Authentication** - Enterprise-grade güvenlik  
+
+[Migration Detayları →](MIGRATION-COMPLETE.md) | [Mimari →](ARCHITECTURE-V2.md)
 
 ## 1. Vizyon
 
@@ -56,14 +72,35 @@ Ultrarslanoglu-Core, Galatasaray'ın dijital varlığını güçlendirmek için 
 
 ## 5. Teknik Yapı
 
-Bu çekirdek depo, Galatasaray'ın dijital altyapısını destekleyen çeşitli projelerin geliştirilmesine temel oluşturur. Aşağıda planlanan ana projeler ve kısa açıklamaları yer almaktadır:
+### 🏗️ API Gateway (v2.0)
 
-- **gs-video-pipeline**: Video içerik üretimini otomatikleştiren ve optimize eden bir pipeline sistemi. Yüksek kaliteli video işleme ve dağıtım araçları içerir.
-- **gs-ai-editor**: Yapay zeka destekli video düzenleme aracı. Otomatik kesim, efekt ekleme ve içerik önerileri ile editörlerin verimliliğini artırır.
-- **gs-analytics-dashboard**: Taraftar verileri, performans metrikleri ve içerik analizi için kapsamlı bir dashboard. Veri odaklı kararlar almak için kullanılır.
-- **gs-content-scheduler**: Sosyal medya ve dijital platformlar için içerik planlama ve yayınlama aracı. Zamanlama, optimizasyon ve performans takibi sağlar.
-- **gs-automation-tools**: Rutin görevleri otomatikleştiren araçlar seti. Workflow optimizasyonu ve operasyonel verimlilik için geliştirilir.
-- **gs-brand-kit**: Galatasaray marka kimliğini dijital olarak yöneten bir kit. Renk paletleri, şablonlar ve yönergeler içerir.
+Tüm servisleri tek çatı altında toplayan unified architecture:
+
+```
+api-gateway/
+├── src/
+│   ├── modules/
+│   │   ├── video.py          # Video pipeline
+│   │   ├── ai_editor.py      # AI-powered editing
+│   │   ├── analytics.py      # Data analytics
+│   │   ├── automation.py     # Task automation
+│   │   ├── brand_kit.py      # Brand management
+│   │   └── scheduler.py      # Content scheduling
+│   └── shared/               # Ortak kod
+│       ├── database.py       # MongoDB
+│       ├── auth.py           # JWT Auth
+│       └── github_models.py  # AI Client
+```
+
+**API Endpoints:**
+- `http://localhost:5000/api/video/*` - Video işleme
+- `http://localhost:5000/api/ai-editor/*` - AI düzenleme
+- `http://localhost:5000/api/analytics/*` - Analitik
+- `http://localhost:5000/api/automation/*` - Otomasyon
+- `http://localhost:5000/api/brand/*` - Marka yönetimi
+- `http://localhost:5000/api/scheduler/*` - İçerik planlama
+
+[API Dokümantasyonu →](api-gateway/README.md)
 
 ## 6. Yol Haritası
 
