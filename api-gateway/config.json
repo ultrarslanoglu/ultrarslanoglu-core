@@ -1,0 +1,55 @@
+{
+  "name": "Ultrarslanoglu API Gateway",
+  "version": "2.0.0",
+  "port": 5000,
+  "debug": false,
+  "cors": {
+    "enabled": true,
+    "origins": ["*"]
+  },
+  "database": {
+    "type": "mongodb",
+    "connection_string": "${MONGODB_URI}",
+    "database_name": "ultrarslanoglu"
+  },
+  "redis": {
+    "enabled": true,
+    "connection_string": "${REDIS_URL}"
+  },
+  "auth": {
+    "jwt_secret": "${JWT_SECRET}",
+    "jwt_expiry": 86400,
+    "bcrypt_rounds": 12
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "logs/api_gateway.log"
+  },
+  "modules": {
+    "video": {
+      "enabled": true,
+      "max_file_size_mb": 500,
+      "allowed_formats": ["mp4", "mov", "avi", "mkv"]
+    },
+    "ai_editor": {
+      "enabled": true,
+      "github_models": true
+    },
+    "analytics": {
+      "enabled": true,
+      "streamlit_port": 8501
+    },
+    "automation": {
+      "enabled": true,
+      "celery_workers": 4
+    },
+    "brand_kit": {
+      "enabled": true
+    },
+    "scheduler": {
+      "enabled": true,
+      "default_timezone": "Europe/Istanbul"
+    }
+  }
+}
