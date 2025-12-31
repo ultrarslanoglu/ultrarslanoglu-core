@@ -23,7 +23,7 @@ requests==2.31.0
 # Analytics
 pandas==2.2.0
 numpy==1.26.3
-streamlit==1.31.0
+streamlit==1.37.0
 
 # Video Processing
 opencv-python==4.9.0.80
