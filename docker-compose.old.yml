@@ -1,0 +1,408 @@
+services:
+  # ============================================
+  # CORE INFRASTRUCTURE
+  # ============================================
+  
+  # MongoDB - Ana Veritabanı
+  mongodb:
+    image: mongo:7.0
+    container_name: ultrarslanoglu-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-ultrarslanoglu2025}
+      MONGO_INITDB_DATABASE: ultrarslanoglu
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis - Cache ve Queue
+  redis:
+    image: redis:7-alpine
+    container_name: ultrarslanoglu-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # ============================================
+  # API GATEWAY - Ana Giriş Noktası
+  # ============================================
+  
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: ultrarslanoglu-api-gateway
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/api_gateway?authSource=admin
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./api-gateway:/app
+      - api_gateway_logs:/app/logs
+      - api_gateway_uploads:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # GALATASARAY PROJELERI
+  # ============================================
+
+  # GS AI Editor
+  gs-ai-editor:
+    build: 
+      context: ./projeler/gs-ai-editor
+      dockerfile: Dockerfile
+    container_name: gs-ai-editor
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_ai_editor?authSource=admin
+      - REDIS_URL=redis://redis:6379/1
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-ai-editor:/app
+      - ai_editor_data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Analytics Dashboard
+  gs-analytics-dashboard:
+    build: 
+      context: ./projeler/gs-analytics-dashboard
+      dockerfile: Dockerfile
+    container_name: gs-analytics-dashboard
+    restart: always
+    ports:
+      - "5002:5000"
+      - "8501:8501"  # Streamlit
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_analytics?authSource=admin
+      - REDIS_URL=redis://redis:6379/2
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-analytics-dashboard:/app
+      - analytics_data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Automation Tools
+  gs-automation-tools:
+    build: 
+      context: ./projeler/gs-automation-tools
+      dockerfile: Dockerfile
+    container_name: gs-automation-tools
+    restart: always
+    ports:
+      - "5003:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_automation?authSource=admin
+      - REDIS_URL=redis://redis:6379/3
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/3
+      - CELERY_RESULT_BACKEND=redis://redis:6379/3
+    volumes:
+      - ./projeler/gs-automation-tools:/app
+      - automation_data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Brand Kit
+  gs-brand-kit:
+    build: 
+      context: ./projeler/gs-brand-kit
+      dockerfile: Dockerfile
+    container_name: gs-brand-kit
+    restart: always
+    ports:
+      - "5004:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_brand_kit?authSource=admin
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./projeler/gs-brand-kit:/app
+      - brand_kit_data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Content Scheduler
+  gs-content-scheduler:
+    build: 
+      context: ./projeler/gs-content-scheduler
+      dockerfile: Dockerfile
+    container_name: gs-content-scheduler
+    restart: always
+    ports:
+      - "5005:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_content_scheduler?authSource=admin
+      - REDIS_URL=redis://redis:6379/4
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+    volumes:
+      - ./projeler/gs-content-scheduler:/app
+      - scheduler_data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # GS Video Pipeline
+  gs-video-pipeline:
+    build: 
+      context: ./projeler/gs-video-pipeline
+      dockerfile: Dockerfile
+    container_name: gs-video-pipeline
+    restart: always
+    ports:
+      - "5006:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/gs_video_pipeline?authSource=admin
+      - REDIS_URL=redis://redis:6379/5
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CELERY_BROKER_URL=redis://redis:6379/5
+      - CELERY_RESULT_BACKEND=redis://redis:6379/5
+    volumes:
+      - ./projeler/gs-video-pipeline:/app
+      - video_pipeline_data:/app/data
+      - video_pipeline_uploads:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+
+  # ============================================
+  # WEB PLATFORMLARI
+  # ============================================
+
+  # Social Media Hub - Node.js Backend
+  social-media-hub:
+    build:
+      context: ./social-media-hub
+      dockerfile: Dockerfile.dev
+    container_name: social-media-hub
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/social_media_hub?authSource=admin
+      - REDIS_URL=redis://redis:6379/6
+      - SESSION_SECRET=${SESSION_SECRET:-your-session-secret}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret}
+      - FACEBOOK_APP_ID=${FACEBOOK_APP_ID}
+      - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - TIKTOK_CLIENT_KEY=${TIKTOK_CLIENT_KEY}
+      - TIKTOK_CLIENT_SECRET=${TIKTOK_CLIENT_SECRET}
+    volumes:
+      - ./social-media-hub:/app
+      - /app/node_modules
+      - social_media_uploads:/app/uploads
+      - social_media_logs:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Ultrarslanoglu Website - Next.js
+  ultrarslanoglu-website:
+    build:
+      context: ./ultrarslanoglu-website
+      dockerfile: Dockerfile.dev
+    container_name: ultrarslanoglu-website
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3001
+      - NEXT_PUBLIC_API_URL=http://api-gateway:5000
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:5000
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/ultrarslanoglu?authSource=admin
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-nextauth-secret}
+      - NEXTAUTH_URL=http://localhost:3001
+    volumes:
+      - ./ultrarslanoglu-website:/app
+      - /app/node_modules
+      - /app/.next
+      - website_logs:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001', (r) => {if (r.statusCode !== 404 && r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # NGINX REVERSE PROXY
+  # ============================================
+
+  nginx:
+    image: nginx:alpine
+    container_name: ultrarslanoglu-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - ultrarslanoglu-website
+      - social-media-hub
+      - api-gateway
+    networks:
+      - ultrarslanoglu-network
+    profiles:
+      - production
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ============================================
+# NETWORKS
+# ============================================
+
+networks:
+  ultrarslanoglu-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ============================================
+# VOLUMES
+# ============================================
+
+volumes:
+  # Core Infrastructure
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  
+  # API Gateway
+  api_gateway_logs:
+    driver: local
+  api_gateway_uploads:
+    driver: local
+  
+  # Galatasaray Projects
+  ai_editor_data:
+    driver: local
+  analytics_data:
+    driver: local
+  automation_data:
+    driver: local
+  brand_kit_data:
+    driver: local
+  scheduler_data:
+    driver: local
+  video_pipeline_data:
+    driver: local
+  video_pipeline_uploads:
+    driver: local
+  
+  # Web Platforms
+  social_media_uploads:
+    driver: local
+  social_media_logs:
+    driver: local
+  website_logs:
+    driver: local
+  
+  # Nginx
+  nginx_logs:
+    driver: local

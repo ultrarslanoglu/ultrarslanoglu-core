@@ -1,0 +1,178 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-config
+  namespace: ultrarslanoglu
+data:
+  init-script.js: |
+    db = db.getSiblingDB('ultrarslanoglu');
+    
+    // Create collections with validation
+    db.createCollection('users', {
+      validator: {
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['email', 'password_hash'],
+          properties: {
+            email: { bsonType: 'string' },
+            username: { bsonType: 'string' },
+            password_hash: { bsonType: 'string' },
+            role: { enum: ['viewer', 'editor', 'admin', 'superadmin'] },
+            created_at: { bsonType: 'date' },
+            updated_at: { bsonType: 'date' }
+          }
+        }
+      }
+    });
+    
+    // Create indexes
+    db.users.createIndex({ email: 1 }, { unique: true });
+    db.users.createIndex({ username: 1 }, { unique: true, sparse: true });
+    
+    print('✅ MongoDB initialized successfully');
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+  namespace: ultrarslanoglu
+type: Opaque
+stringData:
+  root-username: admin
+  root-password: "CHANGE_ME_MONGODB_PASSWORD"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv
+  namespace: ultrarslanoglu
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /data/ultrarslanoglu/mongodb
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: ultrarslanoglu
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: ultrarslanoglu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: mongodb
+        image: mongo:7.0
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: root-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: root-password
+        - name: MONGO_INITDB_DATABASE
+          value: ultrarslanoglu
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - mongosh
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - mongosh
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 2
+        volumeMounts:
+        - name: data
+          mountPath: /data/db
+        - name: config
+          mountPath: /docker-entrypoint-initdb.d
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+      - name: config
+        configMap:
+          name: mongodb-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: ultrarslanoglu
+spec:
+  clusterIP: None
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mongodb-pdb
+  namespace: ultrarslanoglu
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mongodb

@@ -73,12 +73,13 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       if (token) {
+        const role = (token.role as 'viewer' | 'editor' | 'admin' | 'superadmin' | undefined) ?? 'viewer';
         session.user = {
           id: token.id as string,
           email: token.email as string,
           name: token.name as string,
           username: token.username as string,
-          role: token.role as string,
+          role,
           avatar: token.avatar as string,
           connectedPlatforms: token.connectedPlatforms as Record<string, boolean>
         };

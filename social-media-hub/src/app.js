@@ -9,6 +9,8 @@ const path = require('path');
 const config = require('../config');
 const logger = require('./utils/logger');
 const { apiLimiter } = require('./utils/rateLimiter');
+const { initPostgres } = require('./lib/postgres');
+const pointsService = require('./services/points');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -20,6 +22,7 @@ const metaRoutes = require('./routes/metaRoutes');
 const youtubeRoutes = require('./routes/youtubeRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const pointsRoutes = require('./routes/pointsRoutes');
 
 // Initialize Express app
 const app = express();
@@ -64,6 +67,14 @@ mongoose.connect(config.mongodb.uri, config.mongodb.options)
     process.exit(1);
   });
 
+initPostgres()
+  .then(pointsService.ensureSchema)
+  .then(() => logger.info('PostgreSQL schema ready (points module)'))
+  .catch((error) => {
+    logger.error('PostgreSQL connection error:', error);
+    process.exit(1);
+  });
+
 // ============ Routes ============
 
 // Homepage
@@ -92,6 +103,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tiktok', tiktokRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/youtube', youtubeRoutes);
+app.use('/api/points', pointsRoutes);
 
 // Webhook routes (Meta - Facebook/Instagram)
 app.use('/meta', webhookRoutes);

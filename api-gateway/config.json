@@ -26,6 +26,14 @@
     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     "file": "logs/api_gateway.log"
   },
+  "mqtt": {
+    "broker": "${MQTT_BROKER}",
+    "port": 1883,
+    "username": "${MQTT_USERNAME}",
+    "password": "${MQTT_PASSWORD}",
+    "topic_prefix": "stadium/devices",
+    "client_id": "ultrarslanoglu-api"
+  },
   "modules": {
     "video": {
       "enabled": true,
@@ -50,6 +58,9 @@
     "scheduler": {
       "enabled": true,
       "default_timezone": "Europe/Istanbul"
+    },
+    "iot": {
+      "enabled": true
     }
   }
 }
