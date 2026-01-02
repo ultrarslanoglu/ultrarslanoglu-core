@@ -298,3 +298,8 @@ export default function AdminPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  // SSR ile render edilerek build-time prerender hataları önlenir
+  return { props: {} };
+}

@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: api-gateway-monitoring
+  namespace: ultrarslanoglu
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+
+---
+apiVersion: v1
+kind: PrometheusRule
+metadata:
+  name: api-gateway-alerts
+  namespace: ultrarslanoglu
+spec:
+  groups:
+  - name: api-gateway
+    interval: 30s
+    rules:
+    - alert: APIGatewayHighErrorRate
+      expr: rate(flask_http_requests_total{status=~"5.."}[5m]) > 0.05
+      for: 5m
+      annotations:
+        summary: "High error rate on API Gateway"
+        description: "Error rate is above 5%"
+    
+    - alert: APIGatewayHighLatency
+      expr: histogram_quantile(0.95, rate(flask_http_request_duration_seconds_bucket[5m])) > 2
+      for: 5m
+      annotations:
+        summary: "High latency on API Gateway"
+        description: "95th percentile latency exceeds 2 seconds"
+    
+    - alert: MongoDBConnectionError
+      expr: mongodb_up == 0
+      for: 1m
+      annotations:
+        summary: "MongoDB connection failed"
+        description: "Cannot connect to MongoDB"
+    
+    - alert: RedisConnectionError
+      expr: redis_up == 0
+      for: 1m
+      annotations:
+        summary: "Redis connection failed"
+        description: "Cannot connect to Redis"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: ultrarslanoglu
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus:9090
+      isDefault: true
+      editable: true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: ultrarslanoglu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        args:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--storage.tsdb.path=/prometheus'
+        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+        - '--web.console.templates=/usr/share/prometheus/consoles'
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: ultrarslanoglu
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets: []
+    
+    scrape_configs:
+    - job_name: 'api-gateway'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - ultrarslanoglu
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: api-gateway
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: ultrarslanoglu
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: ultrarslanoglu
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: ultrarslanoglu
+spec:
+  selector:
+    app: prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090

@@ -15,6 +15,17 @@ module.exports = {
       socketTimeoutMS: 45000,
     }
   },
+
+  // PostgreSQL (Points & Rewards)
+  postgres: {
+    connectionString: process.env.PG_CONNECTION_STRING,
+    host: process.env.PG_HOST || 'localhost',
+    port: parseInt(process.env.PG_PORT, 10) || 5432,
+    user: process.env.PG_USER || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+    database: process.env.PG_DATABASE || 'ultrarslanoglu_points',
+    ssl: process.env.PG_SSL === 'true'
+  },
   
   // Redis
   redis: {

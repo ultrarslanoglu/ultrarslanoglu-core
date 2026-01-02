@@ -1,172 +1,163 @@
-version: '3.8'
+version: '3.9'
+
+# ================================================
+# ULTRARSLANOGLU CORE - Unified Architecture
+# Version: 2.0.0
+# Description: API Gateway + Website + Social Hub
+# Production Ready Configuration
+# ================================================
+
+x-common-variables: &common-variables
+  PYTHONUNBUFFERED: 1
+  TZ: Europe/Istanbul
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+x-mongodb-uri: &mongodb-uri
+  MONGODB_URI: ${MONGODB_URI:-mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/ultrarslanoglu?authSource=admin}
+
+x-redis-uri: &redis-uri
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
 
 services:
-  # MongoDB
+  # =====================================
+  # DATABASE SERVICES
+  # =====================================
+  
   mongodb:
     image: mongo:7.0
     container_name: ultrarslanoglu-mongodb
     restart: always
     ports:
       - "27017:27017"
+    env_file:
+      - .env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: ultrarslanoglu2025
-      MONGO_INITDB_DATABASE: ultrarslanoglu
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
     networks:
       - ultrarslanoglu-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis
   redis:
     image: redis:7-alpine
     container_name: ultrarslanoglu-redis
     restart: always
     ports:
       - "6379:6379"
+    env_file:
+      - .env
     volumes:
       - redis_data:/data
     networks:
       - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
-  # GS AI Editor
-  gs-ai-editor:
-    build: ./projeler/gs-ai-editor
-    container_name: gs-ai-editor
+  # =====================================
+  # CORE API GATEWAY (NEW!)
+  # All microservices unified
+  # =====================================
+  
+  api-gateway:
+    build: ./api-gateway
+    container_name: ultrarslanoglu-api-gateway
     restart: always
     ports:
-      - "5001:5000"
+      - "5000:5000"
+    env_file:
+      - .env
     environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_ai_editor?authSource=admin
-      - REDIS_URL=redis://redis:6379/0
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_URL=${REDIS_URL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=5000
+    volumes:
+      - ./api-gateway:/app
+      - api_gateway_logs:/app/logs
+      - api_gateway_data:/app/data
+      - api_gateway_uploads:/app/uploads
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker for API Gateway
+  celery-worker:
+    build: ./api-gateway
+    container_name: ultrarslanoglu-celery-worker
+    restart: always
+    command: celery -A src.shared.celery_app worker --loglevel=info --concurrency=4
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_URL=${REDIS_URL}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
     volumes:
-      - ./projeler/gs-ai-editor:/app
-      - ai_editor_data:/app/data
+      - ./api-gateway:/app
+      - api_gateway_data:/app/data
     depends_on:
       - mongodb
       - redis
     networks:
       - ultrarslanoglu-network
 
-  # GS Analytics Dashboard
-  gs-analytics-dashboard:
-    build: ./projeler/gs-analytics-dashboard
-    container_name: gs-analytics-dashboard
+  # Celery Beat for scheduled tasks
+  celery-beat:
+    build: ./api-gateway
+    container_name: ultrarslanoglu-celery-beat
     restart: always
-    ports:
-      - "5002:5000"
-      - "8501:8501"  # Streamlit
+    command: celery -A src.shared.celery_app beat --loglevel=info
+    env_file:
+      - .env
     environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_analytics?authSource=admin
-      - REDIS_URL=redis://redis:6379/1
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_URL=${REDIS_URL}
     volumes:
-      - ./projeler/gs-analytics-dashboard:/app
-      - analytics_data:/app/data
+      - ./api-gateway:/app
     depends_on:
       - mongodb
       - redis
     networks:
       - ultrarslanoglu-network
 
-  # GS Automation Tools
-  gs-automation-tools:
-    build: ./projeler/gs-automation-tools
-    container_name: gs-automation-tools
-    restart: always
-    ports:
-      - "5003:5000"
-    environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_automation?authSource=admin
-      - REDIS_URL=redis://redis:6379/2
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379/2
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-    volumes:
-      - ./projeler/gs-automation-tools:/app
-      - automation_data:/app/data
-    depends_on:
-      - mongodb
-      - redis
-    networks:
-      - ultrarslanoglu-network
-
-  # GS Brand Kit
-  gs-brand-kit:
-    build: ./projeler/gs-brand-kit
-    container_name: gs-brand-kit
-    restart: always
-    ports:
-      - "5004:5000"
-    environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_brand_kit?authSource=admin
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-    volumes:
-      - ./projeler/gs-brand-kit:/app
-      - brand_kit_data:/app/data
-    depends_on:
-      - mongodb
-    networks:
-      - ultrarslanoglu-network
-
-  # GS Content Scheduler
-  gs-content-scheduler:
-    build: ./projeler/gs-content-scheduler
-    container_name: gs-content-scheduler
-    restart: always
-    ports:
-      - "5005:5000"
-    environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_content_scheduler?authSource=admin
-      - REDIS_URL=redis://redis:6379/3
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379/3
-      - CELERY_RESULT_BACKEND=redis://redis:6379/3
-    volumes:
-      - ./projeler/gs-content-scheduler:/app
-      - scheduler_data:/app/data
-    depends_on:
-      - mongodb
-      - redis
-    networks:
-      - ultrarslanoglu-network
-
-  # GS Video Pipeline
-  gs-video-pipeline:
-    build: ./projeler/gs-video-pipeline
-    container_name: gs-video-pipeline
-    restart: always
-    ports:
-      - "5006:5000"
-    environment:
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/gs_video_pipeline?authSource=admin
-      - REDIS_URL=redis://redis:6379/4
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379/4
-      - CELERY_RESULT_BACKEND=redis://redis:6379/4
-    volumes:
-      - ./projeler/gs-video-pipeline:/app
-      - video_pipeline_data:/app/data
-      - video_pipeline_uploads:/app/uploads
-    depends_on:
-      - mongodb
-      - redis
-    networks:
-      - ultrarslanoglu-network
-
-  # Social Media Hub
+  # =====================================
+  # SOCIAL MEDIA HUB
+  # Multi-platform social media manager
+  # =====================================
+  
   social-media-hub:
     build: ./social-media-hub
-    container_name: social-media-hub
+    container_name: ultrarslanoglu-social-hub
     restart: always
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/social_media_hub?authSource=admin
-      - REDIS_URL=redis://redis:6379/5
+      - MONGODB_URI=${SOCIAL_MEDIA_MONGODB_URI:-mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/social_media_hub?authSource=admin}
+      - REDIS_URL=redis://redis:6379/1
+      - API_GATEWAY_URL=http://api-gateway:5000
     volumes:
       - ./social-media-hub:/app
       - social_media_uploads:/app/uploads
@@ -174,33 +165,78 @@ services:
     depends_on:
       - mongodb
       - redis
+      - api-gateway
     networks:
       - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Ultrarslanoglu Website (Development)
+  # =====================================
+  # WEBSITE
+  # Next.js frontend
+  # =====================================
+  
   ultrarslanoglu-website:
     build:
       context: ./ultrarslanoglu-website
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: ultrarslanoglu-website
     restart: always
     ports:
       - "3001:3001"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_SITE_URL=http://localhost:3001
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
-      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/ultrarslanoglu?authSource=admin
-    volumes:
-      - ./ultrarslanoglu-website:/app
-      - /app/node_modules
-      - /app/.next
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - NEXT_PUBLIC_API_URL=http://api-gateway:5000
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:5000
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - mongodb
+      - api-gateway
     networks:
       - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Nginx Reverse Proxy (Optional - for production-like setup)
+  # =====================================
+  # ANALYTICS DASHBOARD (Optional)
+  # Streamlit dashboard for data visualization
+  # =====================================
+  
+  streamlit-dashboard:
+    build: ./api-gateway
+    container_name: ultrarslanoglu-streamlit
+    restart: always
+    ports:
+      - "8501:8501"
+    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    environment:
+      - MONGODB_URI=mongodb://admin:ultrarslanoglu2025@mongodb:27017/ultrarslanoglu?authSource=admin
+      - API_GATEWAY_URL=http://api-gateway:5000
+    volumes:
+      - ./api-gateway:/app
+    depends_on:
+      - mongodb
+      - api-gateway
+    networks:
+      - ultrarslanoglu-network
+    profiles:
+      - analytics
+
+  # =====================================
+  # NGINX REVERSE PROXY (Production)
+  # =====================================
+  
   nginx:
     image: nginx:alpine
     container_name: ultrarslanoglu-nginx
@@ -214,26 +250,44 @@ services:
     depends_on:
       - ultrarslanoglu-website
       - social-media-hub
+      - api-gateway
     networks:
       - ultrarslanoglu-network
     profiles:
       - production
 
+# =====================================
+# NETWORKS
+# =====================================
+
 networks:
   ultrarslanoglu-network:
     driver: bridge
+    name: ultrarslanoglu-network
+
+# =====================================
+# VOLUMES
+# =====================================
 
 volumes:
+  # Database
   mongodb_data:
+    name: ultrarslanoglu_mongodb_data
   mongodb_config:
+    name: ultrarslanoglu_mongodb_config
   redis_data:
-  ai_editor_data:
-  analytics_data:
-  automation_data:
-  brand_kit_data:
-  scheduler_data:
-  video_pipeline_data:
-  video_pipeline_uploads:
+    name: ultrarslanoglu_redis_data
+  
+  # API Gateway
+  api_gateway_logs:
+    name: ultrarslanoglu_api_logs
+  api_gateway_data:
+    name: ultrarslanoglu_api_data
+  api_gateway_uploads:
+    name: ultrarslanoglu_api_uploads
+  
+  # Social Media Hub
   social_media_uploads:
+    name: ultrarslanoglu_social_uploads
   social_media_logs:
-  website_node_modules:
+    name: ultrarslanoglu_social_logs

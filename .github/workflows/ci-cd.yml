@@ -1,0 +1,320 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ultrarslanoglu/api-gateway
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================
+  # PYTHON BACKEND TESTS
+  # ============================================
+  
+  backend-test:
+    runs-on: ubuntu-latest
+    name: Backend Tests
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          MONGO_INITDB_DATABASE: ultrarslanoglu_test
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: test_password
+        ports:
+          - 27017:27017
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        working-directory: ./api-gateway
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+      
+      - name: Run linting
+        working-directory: ./api-gateway
+        run: |
+          pip install pylint
+          pylint src/ --disable=all --enable=E,F || true
+      
+      - name: Run tests with coverage
+        working-directory: ./api-gateway
+        env:
+          MONGODB_URI: mongodb://admin:test_password@localhost:27017/ultrarslanoglu_test?authSource=admin
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: test-secret-key
+          FLASK_ENV: testing
+        run: |
+          pytest test_comprehensive.py -v --cov=src --cov-report=xml --cov-report=html
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./api-gateway/coverage.xml
+          flags: backend
+          fail_ci_if_error: false
+
+  # ============================================
+  # NODE.JS FRONTEND TESTS
+  # ============================================
+  
+  frontend-test:
+    runs-on: ubuntu-latest
+    name: Frontend Tests
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            social-media-hub/package-lock.json
+            ultrarslanoglu-website/package-lock.json
+      
+      - name: Install Social Media Hub dependencies
+        working-directory: ./social-media-hub
+        run: npm ci
+      
+      - name: Lint Social Media Hub
+        working-directory: ./social-media-hub
+        run: npm run lint || true
+      
+      - name: Test Social Media Hub
+        working-directory: ./social-media-hub
+        run: npm test || true
+      
+      - name: Install Website dependencies
+        working-directory: ./ultrarslanoglu-website
+        run: npm ci
+      
+      - name: Build Website
+        working-directory: ./ultrarslanoglu-website
+        env:
+          NEXT_PUBLIC_API_GATEWAY_URL: http://localhost:5000
+        run: npm run build
+
+  # ============================================
+  # SECURITY SCANNING
+  # ============================================
+  
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Check Python dependencies for vulnerabilities
+        working-directory: ./api-gateway
+        run: |
+          pip install safety
+          safety check --json || true
+
+  # ============================================
+  # BUILD DOCKER IMAGES
+  # ============================================
+  
+  build:
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    name: Build Docker Images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+      
+      - name: Build and push API Gateway
+        uses: docker/build-push-action@v4
+        with:
+          context: ./api-gateway
+          file: ./api-gateway/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # DEPLOY TO STAGING
+  # ============================================
+  
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to staging environment
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.STAGING_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+          
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            cd /opt/ultrarslanoglu
+            git pull origin develop
+            docker-compose --env-file .env.staging pull
+            docker-compose --env-file .env.staging up -d
+            docker-compose --env-file .env.staging logs api-gateway
+          EOF
+
+  # ============================================
+  # DEPLOY TO PRODUCTION
+  # ============================================
+  
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Verify deployment permissions
+        run: echo "✅ Deploying to production..."
+      
+      - name: Deploy to production environment
+        env:
+          DEPLOY_KEY: ${{ secrets.PROD_DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.PROD_HOST }}
+          DEPLOY_USER: ${{ secrets.PROD_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+          
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            cd /opt/ultrarslanoglu
+            git pull origin main
+            docker-compose --env-file .env.production pull
+            docker-compose --env-file .env.production up -d
+            docker-compose --env-file .env.production exec api-gateway python init_db.py
+            docker-compose --env-file .env.production logs api-gateway
+          EOF
+      
+      - name: Verify deployment health
+        env:
+          API_URL: ${{ secrets.PROD_API_URL }}
+        run: |
+          for i in {1..30}; do
+            if curl -f $API_URL/health; then
+              echo "✅ Deployment successful!"
+              exit 0
+            fi
+            echo "Waiting for API to be ready... ($i/30)"
+            sleep 2
+          done
+          echo "❌ Deployment failed!"
+          exit 1
+
+  # ============================================
+  # NOTIFY SLACK
+  # ============================================
+  
+  notify:
+    runs-on: ubuntu-latest
+    name: Notify Status
+    if: always()
+    needs: [backend-test, frontend-test, security]
+    
+    steps:
+      - name: Slack Notification
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "GitHub Action result: ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Ultrarslanoglu CI/CD*\n*Status:* ${{ job.status }}\n*Branch:* ${{ github.ref }}\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                  }
+                }
+              ]
+            }

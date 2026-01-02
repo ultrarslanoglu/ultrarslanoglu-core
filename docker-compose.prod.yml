@@ -1,0 +1,144 @@
+version: '3.9'
+
+services:
+  # MongoDB - Database
+  mongodb:
+    image: mongo:7.0
+    container_name: ultrarslanoglu-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: ultrarslanoglu
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/ultrarslanoglu
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis - Cache & Rate Limiting
+  redis:
+    image: redis:7-alpine
+    container_name: ultrarslanoglu-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ultrarslanoglu-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Celery Worker - Background Tasks
+  celery_worker:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile.optimized
+    container_name: ultrarslanoglu-celery
+    command: celery -A src.shared.celery_app worker --loglevel=info
+    environment:
+      - FLASK_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/ultrarslanoglu
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - ultrarslanoglu-network
+    restart: unless-stopped
+
+  # Flower - Celery Monitoring
+  flower:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile.optimized
+    container_name: ultrarslanoglu-flower
+    command: celery -A src.shared.celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+    networks:
+      - ultrarslanoglu-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile.optimized
+    container_name: ultrarslanoglu-api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - API_HOST=0.0.0.0
+      - API_PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/ultrarslanoglu
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=False
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api-gateway:/app
+      - /app/__pycache__
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Nginx - Reverse Proxy & Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: ultrarslanoglu-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  ultrarslanoglu-network:
+    driver: bridge

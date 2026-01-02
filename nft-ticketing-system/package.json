@@ -1,0 +1,49 @@
+{
+  "name": "nft-ticketing-system",
+  "version": "1.0.0",
+  "description": "NFT-based ticketing system with Solidity smart contracts",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
+    "verify": "hardhat verify",
+    "flatten": "hardhat flatten",
+    "clean": "hardhat clean",
+    "node": "hardhat node",
+    "backend": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run dev"
+  },
+  "keywords": [
+    "nft",
+    "erc721",
+    "ticketing",
+    "blockchain",
+    "ethereum",
+    "solidity"
+  ],
+  "author": "Ultrarslanoglu",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/hardhat-upgrades": "^2.0.0",
+    "hardhat": "^2.17.1",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.4",
+    "chai": "^4.3.10",
+    "ethers": "^6.8.0",
+    "dotenv": "^16.3.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
