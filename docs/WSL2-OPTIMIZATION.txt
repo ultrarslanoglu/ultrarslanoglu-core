@@ -1,0 +1,59 @@
+# ================================================
+# ULTRARSLANOGLU CORE - WSL2 Optimizations
+# ================================================
+# Add these to your ~/.wslconfig (Windows side)
+# Location: C:\Users\<YourUsername>\.wslconfig
+
+[wsl2]
+# Memory allocation
+memory=6GB
+# Processors
+processors=4
+# Swap
+swap=2GB
+# Localhostforwarding
+localhostForwarding=true
+# Enable nested virtualization for Docker
+nestedVirtualization=true
+
+[experimental]
+# Automatically reclaim memory
+autoMemoryReclaim=gradual
+# Sparse VHD
+sparseVhd=true
+
+# ================================================
+# Docker Performance Settings
+# Add these to Docker daemon config
+# Location (WSL): /etc/docker/daemon.json
+# ================================================
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2",
+  "default-address-pools": [
+    {
+      "base": "172.17.0.0/16",
+      "size": 24
+    }
+  ]
+}
+
+# ================================================
+# Ubuntu System Optimizations
+# ================================================
+# Run these commands:
+# sudo sysctl -w vm.max_map_count=262144
+# sudo sysctl -w fs.file-max=2097152
+# echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+# echo "fs.file-max=2097152" | sudo tee -a /etc/sysctl.conf
+
+# ================================================
+# Git Performance
+# ================================================
+# git config --global core.fsmonitor true
+# git config --global core.untrackedCache true
+# git config --global feature.manyFiles true

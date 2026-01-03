@@ -1,0 +1,242 @@
+{
+  "project": "Galatasaray Global Supporters Research",
+  "version": "1.0.0",
+  "created": "2026-01-03",
+  "database": "MongoDB",
+  "collections": {
+    "supporters": {
+      "collection_name": "supporters",
+      "description": "Global Galatasaray supporters database",
+      "schema": {
+        "supporter_id": "ObjectId",
+        "name": "String",
+        "age": "Number",
+        "gender": "String (M/F/Other)",
+        "country": "String (ISO-3166)",
+        "region": "String",
+        "city": "String",
+        "supporter_since": "Date",
+        "supporter_type": "String (Active/Casual/Seasonal)",
+        "support_method": ["Array (Stadium/Online/Shop/Community)"],
+        "social_media": {
+          "twitter": "String",
+          "instagram": "String",
+          "facebook": "String",
+          "tiktok": "String",
+          "youtube": "String"
+        },
+        "engagement_level": "String (High/Medium/Low)",
+        "favorite_player": "String",
+        "favorite_era": "String",
+        "favorite_sport": "String (Football/Basketball/Volleyball/Other)",
+        "member_clubs": ["Array"],
+        "purchased_merchandise": "Boolean",
+        "ticket_holder": "Boolean",
+        "preferred_language": "String",
+        "notes": "String",
+        "created_at": "Date",
+        "updated_at": "Date"
+      },
+      "indexes": [
+        "country",
+        "city",
+        "engagement_level",
+        "supporter_type",
+        "social_media.followers"
+      ]
+    },
+    "regional_supporter_clubs": {
+      "collection_name": "regional_supporter_clubs",
+      "description": "Taraftar dernekleri ve regional organizations",
+      "schema": {
+        "club_id": "ObjectId",
+        "name": "String",
+        "country": "String",
+        "city": "String",
+        "region": "String",
+        "founded_year": "Number",
+        "estimated_members": "Number",
+        "active_members": "Number",
+        "contact_email": "String",
+        "contact_phone": "String",
+        "website": "String",
+        "social_media": {
+          "facebook": "String",
+          "twitter": "String",
+          "instagram": "String"
+        },
+        "activity_level": "String (High/Medium/Low)",
+        "events_per_month": "Number",
+        "last_major_event": "String",
+        "last_major_event_date": "Date",
+        "founded_by": "String",
+        "leadership": ["Array"],
+        "description": "String",
+        "created_at": "Date",
+        "updated_at": "Date"
+      },
+      "indexes": [
+        "country",
+        "city",
+        "activity_level",
+        "estimated_members"
+      ]
+    },
+    "global_statistics": {
+      "collection_name": "global_statistics",
+      "description": "Global Galatasaray support statistics",
+      "schema": {
+        "stat_id": "ObjectId",
+        "period": "Date",
+        "total_supporters_estimate": "Number",
+        "active_supporters": "Number",
+        "supporters_by_country": "Object",
+        "social_media_stats": {
+          "twitter_followers": "Number",
+          "instagram_followers": "Number",
+          "facebook_followers": "Number",
+          "youtube_followers": "Number",
+          "tiktok_followers": "Number",
+          "total_followers": "Number"
+        },
+        "engagement_metrics": {
+          "average_posts_per_day": "Number",
+          "average_likes_per_post": "Number",
+          "average_shares_per_post": "Number",
+          "hashtag_usage": "Number"
+        },
+        "merchandise_sales": "Number",
+        "ticket_sales": "Number",
+        "merchandise_revenue": "Number",
+        "digital_engagement_score": "Number",
+        "created_at": "Date"
+      }
+    },
+    "global_events": {
+      "collection_name": "global_events",
+      "description": "Major global Galatasaray events and gatherings",
+      "schema": {
+        "event_id": "ObjectId",
+        "name": "String",
+        "date": "Date",
+        "country": "String",
+        "city": "String",
+        "venue": "String",
+        "event_type": "String (Match/Gathering/Celebration/Tournament/Watch-Party)",
+        "organizing_club": "String",
+        "expected_attendance": "Number",
+        "actual_attendance": "Number",
+        "description": "String",
+        "tickets_sold": "Number",
+        "social_media_reach": "Number",
+        "media_coverage": "Array",
+        "photos": ["Array"],
+        "created_at": "Date"
+      }
+    },
+    "influencers_content_creators": {
+      "collection_name": "influencers_content_creators",
+      "description": "Popular Galatasaray influencers and content creators",
+      "schema": {
+        "influencer_id": "ObjectId",
+        "name": "String",
+        "platform": "String (YouTube/Instagram/TikTok/Twitter/Twitch)",
+        "follower_count": "Number",
+        "content_type": "String (Analysis/Entertainment/News/Vlogs/Memes)",
+        "average_engagement": "Number",
+        "country": "String",
+        "language": "String",
+        "url": "String",
+        "verified": "Boolean",
+        "content_frequency": "String (Daily/Weekly/Monthly)",
+        "created_at": "Date"
+      }
+    },
+    "merchandise_distribution": {
+      "collection_name": "merchandise_distribution",
+      "description": "Official merchandise distribution worldwide",
+      "schema": {
+        "distribution_id": "ObjectId",
+        "country": "String",
+        "distributor_name": "String",
+        "distributor_type": "String (Official/Partner/Retailer)",
+        "locations": ["Array"],
+        "annual_sales": "Number",
+        "popular_items": ["Array"],
+        "online_availability": "Boolean",
+        "contact_info": "String",
+        "created_at": "Date"
+      }
+    }
+  },
+  "estimated_global_supporters": {
+    "turkey": "5,000,000 - 7,000,000",
+    "europe": "600,000 - 800,000",
+    "middle_east": "600,000",
+    "north_america": "250,000",
+    "asia": "345,000",
+    "south_america": "300,000",
+    "australia": "80,000",
+    "africa": "80,000",
+    "total": "7,000,000 - 8,500,000"
+  },
+  "data_collection_methods": [
+    "Social Media APIs (Twitter, Instagram, Facebook, YouTube, TikTok)",
+    "Survey & Questionnaire (Online & Offline)",
+    "Official Club Records",
+    "Regional Supporter Club Networks",
+    "Merchandise Sales Data",
+    "Ticket Sales Analysis",
+    "Media Coverage Analysis",
+    "Web Analytics"
+  ],
+  "privacy_compliance": {
+    "GDPR": "Full Compliance",
+    "KVKK": "Full Compliance (Turkish Personal Data Protection Law)",
+    "data_anonymization": "Enabled",
+    "consent_required": true,
+    "data_retention": "2 years max"
+  },
+  "roadmap": {
+    "phase_1": {
+      "name": "Data Collection",
+      "timeline": "January - March 2026",
+      "tasks": [
+        "Social media data collection",
+        "Supporter club network mapping",
+        "Global participant surveys",
+        "Media source data gathering"
+      ]
+    },
+    "phase_2": {
+      "name": "Data Processing",
+      "timeline": "April - May 2026",
+      "tasks": [
+        "Data normalization",
+        "Duplicate removal",
+        "Geographic mapping",
+        "Statistical analysis"
+      ]
+    },
+    "phase_3": {
+      "name": "Database Creation",
+      "timeline": "June 2026",
+      "tasks": [
+        "MongoDB schema creation",
+        "Data import",
+        "API development",
+        "Web dashboard development"
+      ]
+    },
+    "phase_4": {
+      "name": "Analysis & Insights",
+      "timeline": "July 2026",
+      "tasks": [
+        "Demographic analysis",
+        "Geographic analysis",
+        "Social media analytics",
+        "Growth predictions"
+      ]
+    }
+  }
+}

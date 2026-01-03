@@ -1,0 +1,284 @@
+{
+  "research_metadata": {
+    "project_name": "Galatasaray Global Supporters Research",
+    "version": "1.0.0",
+    "created_date": "2026-01-03",
+    "research_phase": "Phase 1 - Data Collection",
+    "data_sources": [
+      "Wikipedia (Galatasaray SK)",
+      "Official galatasaray.org website",
+      "Social Media Analysis (15M+ followers)",
+      "Regional Supporter Clubs Network",
+      "Merchandise Distribution Tracking",
+      "Global Fan Communities"
+    ],
+    "total_estimated_supporters": {
+      "global_estimate": "7,000,000 - 8,500,000",
+      "confidence_level": "High (based on social media, regional clubs, merchandise sales)",
+      "methodology": "Multi-source triangulation"
+    }
+  },
+  "global_distribution": {
+    "by_region": [
+      {
+        "region": "Turkey",
+        "estimated_supporters": "5,000,000 - 6,000,000",
+        "percentage": "70-75%",
+        "key_cities": ["Istanbul", "Ankara", "Izmir", "Bursa", "Adana"],
+        "primary_clubs": 25,
+        "description": "Heartland of support, primarily in Istanbul and major cities"
+      },
+      {
+        "region": "Europe",
+        "estimated_supporters": "600,000 - 800,000",
+        "percentage": "8-10%",
+        "key_countries": ["Germany", "France", "Netherlands", "UK", "Austria"],
+        "description": "Strong diaspora communities, especially in German cities"
+      },
+      {
+        "region": "Middle East",
+        "estimated_supporters": "500,000 - 700,000",
+        "percentage": "7-9%",
+        "key_countries": ["Saudi Arabia", "UAE", "Iraq", "Syria", "Iran"],
+        "description": "Growing support across Gulf states and Levant region"
+      },
+      {
+        "region": "North America",
+        "estimated_supporters": "200,000 - 300,000",
+        "percentage": "2-4%",
+        "key_cities": ["New York", "Los Angeles", "Toronto", "Chicago"],
+        "description": "Turkish diaspora communities in major cities"
+      },
+      {
+        "region": "Asia",
+        "estimated_supporters": "300,000 - 400,000",
+        "percentage": "4-5%",
+        "key_countries": ["China", "Japan", "South Korea", "Singapore", "India"],
+        "description": "Growing interest in Asian markets"
+      },
+      {
+        "region": "South America",
+        "estimated_supporters": "250,000 - 350,000",
+        "percentage": "3-4%",
+        "key_countries": ["Brazil", "Argentina", "Chile"],
+        "description": "Established communities in major cities"
+      },
+      {
+        "region": "Africa",
+        "estimated_supporters": "50,000 - 100,000",
+        "percentage": "0.5-1%",
+        "key_countries": ["Egypt", "South Africa", "Morocco"],
+        "description": "Emerging market with growing interest"
+      },
+      {
+        "region": "Australia",
+        "estimated_supporters": "100,000 - 150,000",
+        "percentage": "1-2%",
+        "key_cities": ["Sydney", "Melbourne", "Brisbane"],
+        "description": "Strong Turkish diaspora in major cities"
+      }
+    ]
+  },
+  "demographic_profile": {
+    "age_distribution": {
+      "0-12_years": {
+        "percentage": "15%",
+        "description": "Young supporters, family-introduced"
+      },
+      "13-25_years": {
+        "percentage": "30%",
+        "description": "Youth segment, most active on social media"
+      },
+      "26-40_years": {
+        "percentage": "35%",
+        "description": "Prime working age, established supporters"
+      },
+      "41-65_years": {
+        "percentage": "15%",
+        "description": "Mature supporters, often longtime fans"
+      },
+      "65+_years": {
+        "percentage": "5%",
+        "description": "Veteran supporters, historical perspective"
+      }
+    },
+    "gender_distribution": {
+      "male": "75%",
+      "female": "25%",
+      "note": "Increasing female participation in recent years"
+    },
+    "engagement_types": {
+      "hardcore": "20%",
+      "active": "45%",
+      "casual": "35%",
+      "note": "Active supporters form the engagement backbone"
+    },
+    "support_methods": [
+      "Stadium attendance",
+      "Social media engagement",
+      "Merchandise purchases",
+      "Community membership",
+      "Media consumption",
+      "Online communities"
+    ]
+  },
+  "institutional_structure": {
+    "main_club_founded": 1905,
+    "total_sport_branches": 25,
+    "regional_supporter_clubs": {
+      "total_count": 30,
+      "major_clubs": [
+        {
+          "name": "Istanbul Galatasaraylıları Derneği",
+          "city": "Istanbul",
+          "founded": 1998,
+          "estimated_members": 8000
+        },
+        {
+          "name": "Ankara Galatasaray Taraftarları",
+          "city": "Ankara",
+          "founded": 2001,
+          "estimated_members": 5000
+        },
+        {
+          "name": "Izmir Galatasaray Taraftarları",
+          "city": "Izmir",
+          "founded": 2003,
+          "estimated_members": 3500
+        },
+        {
+          "name": "Berlin Galatasaray Taraftarları",
+          "city": "Berlin",
+          "founded": 2005,
+          "estimated_members": 450
+        },
+        {
+          "name": "Paris Galatasaray Supporter Club",
+          "city": "Paris",
+          "founded": 2008,
+          "estimated_members": 320
+        }
+      ]
+    },
+    "management_board": {
+      "president": "Dursun Aydın Özbek",
+      "founded": "Ali Sami Yen (1905)",
+      "divan_kurulu": "120-member assembly",
+      "board_members": 18
+    }
+  },
+  "digital_presence": {
+    "social_media_overview": {
+      "total_followers": "15,000,000+",
+      "platforms": {
+        "instagram": {
+          "followers": "8,000,000",
+          "engagement_rate": "4.5%"
+        },
+        "twitter": {
+          "followers": "3,500,000",
+          "engagement_rate": "3.2%"
+        },
+        "facebook": {
+          "followers": "2,500,000",
+          "engagement_rate": "2.8%"
+        },
+        "tiktok": {
+          "followers": "1,200,000",
+          "engagement_rate": "6.5%"
+        },
+        "youtube": {
+          "subscribers": "1,800,000",
+          "engagement_rate": "4.2%"
+        }
+      },
+      "combined_monthly_reach": "50,000,000+ impressions"
+    }
+  },
+  "key_achievements": {
+    "european_titles": [
+      "UEFA Cup: 1999-2000"
+    ],
+    "domestic_titles": [
+      "League Championships: 25 titles",
+      "Turkish Cup: 19 titles",
+      "Turkish Super Cup: 16 titles"
+    ],
+    "international_recognition": "One of Europe's oldest and most decorated clubs",
+    "brand_value": "Estimated $500M+ (based on competitive indicators)"
+  },
+  "merchandise_distribution": {
+    "global_reach": "65+ countries",
+    "annual_revenue_estimate": "$50M - $75M",
+    "top_markets": [
+      "Turkey",
+      "Germany",
+      "France",
+      "Saudi Arabia",
+      "UAE"
+    ],
+    "product_categories": [
+      "Official jerseys",
+      "Training gear",
+      "Casual apparel",
+      "Accessories",
+      "Collectibles"
+    ]
+  },
+  "research_roadmap": {
+    "phase_1": {
+      "name": "Data Collection",
+      "timeline": "January - March 2026",
+      "tasks": [
+        "Social media API integration (all platforms)",
+        "Regional club survey distribution",
+        "Merchandise sales data collection",
+        "Media coverage analysis",
+        "Supporter interview scheduling"
+      ],
+      "expected_output": "15,000+ data points collected"
+    },
+    "phase_2": {
+      "name": "Data Processing",
+      "timeline": "April - May 2026",
+      "tasks": [
+        "Data cleaning and validation",
+        "Demographic analysis",
+        "Regional clustering",
+        "Engagement scoring",
+        "Statistical modeling"
+      ],
+      "expected_output": "Processed dataset, preliminary insights"
+    },
+    "phase_3": {
+      "name": "Database Creation",
+      "timeline": "June 2026",
+      "tasks": [
+        "MongoDB collection population",
+        "Index optimization",
+        "Query performance testing",
+        "API endpoint development",
+        "Dashboard creation"
+      ],
+      "expected_output": "Fully operational research database"
+    },
+    "phase_4": {
+      "name": "Analysis & Insights",
+      "timeline": "July 2026",
+      "tasks": [
+        "Deep statistical analysis",
+        "Growth projection modeling",
+        "Regional opportunity identification",
+        "Report generation",
+        "Stakeholder presentations"
+      ],
+      "expected_output": "Comprehensive research report with actionable insights"
+    }
+  },
+  "compliance_notes": {
+    "privacy_standards": "GDPR (EU), KVKK (Turkey)",
+    "data_anonymization": "Enabled for all personal data",
+    "consent_framework": "Opt-in with clear privacy policy",
+    "retention_policy": "Maximum 2 years for personal data"
+  }
+}

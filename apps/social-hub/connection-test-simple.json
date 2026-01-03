@@ -1,0 +1,31 @@
+{
+  "summary": {
+    "totalPlatforms": 4,
+    "configured": 3,
+    "apiReachable": 1
+  },
+  "platforms": {
+    "tiktok": {
+      "configured": true,
+      "apiReachable": "requires_auth",
+      "error": null
+    },
+    "meta": {
+      "configured": true,
+      "apiReachable": false,
+      "error": "The request is invalid because the app is configured as a desktop app"
+    },
+    "youtube": {
+      "configured": true,
+      "apiReachable": true,
+      "error": null
+    },
+    "x": {
+      "configured": false,
+      "apiReachable": "disabled",
+      "error": "Integration disabled (paid access required)"
+    }
+  },
+  "timestamp": "2026-01-03T18:23:32.451Z",
+  "note": "Bu test veritabanı bağlantısı gerektirmez. Sadece yapılandırma ve API erişilebilirliğini kontrol eder."
+}

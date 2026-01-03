@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-01-03 20:06:52.577891",
+  "total_supporters": 1,
+  "total_clubs": 1,
+  "country_distribution": [
+    {
+      "_id": "Turkey",
+      "count": 1
+    }
+  ],
+  "engagement_distribution": [
+    {
+      "_id": "High",
+      "count": 1
+    }
+  ],
+  "supporter_type_distribution": [
+    {
+      "_id": "Active",
+      "count": 1
+    }
+  ]
+}

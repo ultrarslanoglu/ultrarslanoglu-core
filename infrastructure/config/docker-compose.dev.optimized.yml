@@ -1,0 +1,226 @@
+# ================================================
+# ULTRARSLANOGLU CORE - Optimized Development
+# Version: 3.0.0
+# Optimized for: WSL2 Ubuntu 24.04
+# Date: 3 Ocak 2026
+# ================================================
+
+x-common-variables: &common-variables
+  PYTHONUNBUFFERED: 1
+  TZ: Europe/Istanbul
+  LOG_LEVEL: ${LOG_LEVEL:-debug}
+
+services:
+  # =====================================
+  # DATABASES (Lightweight for development)
+  # =====================================
+  
+  mongodb:
+    image: mongo:7.0-jammy
+    container_name: dev-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-ultrarslanoglu2025}
+      MONGO_INITDB_DATABASE: ultrarslanoglu
+    volumes:
+      - dev_mongodb_data:/data/db
+    networks:
+      - dev-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - dev_redis_data:/data
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: dev-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${PG_USER:-ultraadmin}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-ultrarslanoglu2025}
+      POSTGRES_DB: ${PG_DATABASE:-ultrarslanoglu}
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-ultraadmin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # =====================================
+  # API GATEWAY (Hot Reload Enabled)
+  # =====================================
+  
+  api-gateway:
+    image: ultrarslanoglu-api-gateway:dev
+    container_name: dev-api-gateway
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ../../.env
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/ultrarslanoglu?authSource=admin
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ../../apps/api-gateway:/app
+      - /app/__pycache__
+      - api_logs:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dev-network
+    command: ["python", "main_simple.py"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # =====================================
+  # CELERY WORKER (Background Tasks)
+  # =====================================
+  
+  celery-worker:
+    image: ultrarslanoglu-api-gateway:dev
+    container_name: dev-celery-worker
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    environment:
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/ultrarslanoglu?authSource=admin
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ../../apps/api-gateway:/app
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - dev-network
+    command: ["celery", "-A", "src.shared.celery_app", "worker", "--loglevel=debug", "--concurrency=2"]
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # =====================================
+  # WEBSITE (Next.js with Hot Reload)
+  # =====================================
+  
+  website:
+    image: ultrarslanoglu-website:dev
+    container_name: dev-website
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - ../../.env
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    volumes:
+      - ../../apps/website:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api-gateway
+    networks:
+      - dev-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # =====================================
+  # MONITORING (Optional)
+  # =====================================
+  
+  mongo-express:
+    image: mongo-express:latest
+    container_name: dev-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD:-ultrarslanoglu2025}
+      ME_CONFIG_MONGODB_URL: mongodb://admin:${MONGO_PASSWORD:-ultrarslanoglu2025}@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongodb
+    networks:
+      - dev-network
+    profiles:
+      - monitoring
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: dev-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - dev-network
+    profiles:
+      - monitoring
+
+networks:
+  dev-network:
+    driver: bridge
+    name: ultrarslanoglu-dev-network
+
+volumes:
+  dev_mongodb_data:
+    name: ultrarslanoglu_dev_mongodb
+  dev_redis_data:
+    name: ultrarslanoglu_dev_redis
+  dev_postgres_data:
+    name: ultrarslanoglu_dev_postgres
+  api_logs:
+    name: ultrarslanoglu_dev_api_logs
