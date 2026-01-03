@@ -64,6 +64,29 @@ services:
       timeout: 3s
       retries: 5
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: ultrarslanoglu-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=tr_TR.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ultrarslanoglu-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # =====================================
   # CORE API GATEWAY (NEW!)
   # All microservices unified
@@ -155,6 +178,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - NODE_OPTIONS=--unhandled-rejections=warn
       - MONGODB_URI=${SOCIAL_MEDIA_MONGODB_URI:-mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/social_media_hub?authSource=admin}
       - REDIS_URL=redis://redis:6379/1
       - API_GATEWAY_URL=http://api-gateway:5000
@@ -165,6 +189,7 @@ services:
     depends_on:
       - mongodb
       - redis
+      - postgres
       - api-gateway
     networks:
       - ultrarslanoglu-network
@@ -173,6 +198,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    profiles:
+      - social-media
 
   # =====================================
   # WEBSITE
@@ -277,6 +304,8 @@ volumes:
     name: ultrarslanoglu_mongodb_config
   redis_data:
     name: ultrarslanoglu_redis_data
+  postgres_data:
+    name: ultrarslanoglu_postgres_data
   
   # API Gateway
   api_gateway_logs:

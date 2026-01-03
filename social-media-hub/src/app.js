@@ -58,19 +58,28 @@ app.use('/.well-known', express.static(path.join(__dirname, '../public/.well-kno
 
 // ============ Database Connection ============
 
+console.log('[APP] Starting database connections...');
+console.log('[APP] MongoDB URI:', config.mongodb.uri);
+
 mongoose.connect(config.mongodb.uri, config.mongodb.options)
   .then(() => {
+    console.log('[APP] MongoDB connected successfully');
     logger.info('MongoDB connected successfully');
   })
   .catch((error) => {
+    console.error('[APP] MongoDB connection error:', error.message);
     logger.error('MongoDB connection error:', error);
     process.exit(1);
   });
 
 initPostgres()
   .then(pointsService.ensureSchema)
-  .then(() => logger.info('PostgreSQL schema ready (points module)'))
+  .then(() => {
+    console.log('[APP] PostgreSQL schema ready (points module)');
+    logger.info('PostgreSQL schema ready (points module)');
+  })
   .catch((error) => {
+    console.error('[APP] PostgreSQL connection error:', error.message);
     logger.error('PostgreSQL connection error:', error);
     process.exit(1);
   });
@@ -161,6 +170,9 @@ setInterval(() => {
 const PORT = config.port;
 
 const server = app.listen(PORT, () => {
+  console.log(`[APP] 🚀 Server running on port ${PORT}`);
+  console.log(`[APP] 📡 Environment: ${config.env}`);
+  console.log(`[APP] 🌐 Base URL: ${config.baseUrl}`);
   logger.info(`🚀 Server running on port ${PORT}`);
   logger.info(`📡 Environment: ${config.env}`);
   logger.info(`🌐 Base URL: ${config.baseUrl}`);
