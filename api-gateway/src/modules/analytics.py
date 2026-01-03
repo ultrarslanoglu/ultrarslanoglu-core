@@ -8,7 +8,7 @@ Veri analizi ve içgörü üretimi
 from flask import Blueprint, request, jsonify
 from loguru import logger
 from datetime import datetime, timedelta
-from ..shared.database import db
+from ..shared import database
 from ..shared.github_models import GitHubModelsClient
 
 analytics_bp = Blueprint('analytics', __name__)
@@ -24,6 +24,7 @@ def health():
 @analytics_bp.route('/metrics', methods=['POST'])
 def save_metric():
     """Metrik kaydet"""
+    db = database.get_db()
     data = request.json
     
     try:
@@ -38,6 +39,7 @@ def save_metric():
 @analytics_bp.route('/metrics', methods=['GET'])
 def get_metrics():
     """Metrikleri getir"""
+    db = database.get_db()
     platform = request.args.get('platform')
     metric_type = request.args.get('metric_type')
     limit = int(request.args.get('limit', 100))

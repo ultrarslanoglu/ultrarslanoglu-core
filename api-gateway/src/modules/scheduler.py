@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify
 from loguru import logger
 from datetime import datetime
 from ..shared.celery_app import celery
-from ..shared.database import db
+from ..shared import database
 
 scheduler_bp = Blueprint('scheduler', __name__)
 

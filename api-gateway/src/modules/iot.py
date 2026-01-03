@@ -56,6 +56,16 @@ def _publish(topic: str, payload: Dict[str, Any]) -> None:
 iot_bp = Blueprint("iot", __name__, url_prefix="/api/iot")
 
 
+@iot_bp.route("/health", methods=["GET"])
+def iot_health():
+    """IoT modülü sağlık kontrolü"""
+    return jsonify(create_success_response({
+        "module": "iot",
+        "status": "healthy",
+        "version": "1.0.0"
+    }))
+
+
 @iot_bp.route("/lights/on", methods=["POST"])
 @require_auth
 def lights_on():

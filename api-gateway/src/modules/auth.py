@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify
 from loguru import logger
 from datetime import datetime
 from bson.objectid import ObjectId
-from ..shared.database import db
+from ..shared import database
 from ..shared.auth import hash_password, verify_password, generate_token
 
 auth_bp = Blueprint('auth', __name__)
@@ -28,6 +28,7 @@ def health():
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """Yeni kullanıcı kaydı"""
+    db = database.get_db()
     data = request.json
     
     email = data.get('email')
@@ -78,6 +79,7 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """Kullanıcı girişi"""
+    db = database.get_db()
     data = request.json
     
     email = data.get('email')

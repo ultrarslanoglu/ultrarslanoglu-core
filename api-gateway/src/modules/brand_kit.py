@@ -8,7 +8,7 @@ Marka kimliği ve şablonlar
 from flask import Blueprint, request, jsonify
 from loguru import logger
 from datetime import datetime
-from ..shared.database import db
+from ..shared import database
 
 brand_kit_bp = Blueprint('brand_kit', __name__)
 

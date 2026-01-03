@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify
 from loguru import logger
 from datetime import datetime
 from ..shared.celery_app import celery
-from ..shared.database import db
+from ..shared import database
 
 video_bp = Blueprint('video', __name__)
 
@@ -38,6 +38,7 @@ def health():
 @video_bp.route('/upload', methods=['POST'])
 def upload_video():
     """Video yükle"""
+    db = database.get_db()
     file = request.files.get('video')
     metadata = request.form.to_dict()
     
